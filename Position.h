@@ -1,20 +1,25 @@
 #pragma once
 #ifndef POSITION_H
 #define POSITION_H
-#include <stack>
+#include <vector>
 #include "Move.h"
-/************************************************************
-*		The positionRecord class is to keep track of certain*
-*	position specific variables after moves are made. This	*
-*	is so that the position can be reverted to an earlier	*
-*	state. Kept in a stack so as to allow multiple unmakes	*
-************************************************************/
+#include "IcoUtil.h"
+
+namespace IcoChess
+{
+
+/********************************************************************
+*		The positionRecord class is to keep track of certain        *
+*	position specific variables after moves are made. This			*
+*	is so that the position can be reverted to an earlier			*
+*	state. Kept in a stack so as to allow multiple unmakes			*
+********************************************************************/
 class positionRecord
 {
 private:
 	Move prevMove;			// The move that was made
 	int fiftyMoveRule;		// Half move clock before the move
-	bb64 enPassantTarget;	// If there was an enPassantTarget
+	bb64 EN_PASSANTTarget;	// If there was an EN_PASSANTTarget
 
 public:
 	/****************************************************************
@@ -34,11 +39,11 @@ public:
 	************************************************************/
 	void setPrevMove(Move move);
 	void setFiftyMoveRule(int ply);
-	void setEnPassantTarget(bb64 target);
+	void setEN_PASSANTTarget(bb64 target);
 
 	Move getPrevMove();
 	int getFiftyMoveRule();
-	bb64 getEnPassantTarget();
+	bb64 getEN_PASSANTTarget();
 };
 
 /********************************************************************
@@ -59,7 +64,7 @@ public:
  *			union of all the white and black pieces respectively	*
  *	occupied	-- the set of all occupied squares					*
  *	empty		-- the set of all empty squares						*
- *	enPassantTarget		-- the set of all pawns that can be taken	*
+ *	EN_PASSANTTarget		-- the set of all pawns that can be taken	*
 					en passant. Usually set to 0					*
  *  positionRecordSt	-- A stack of positionRecords that keep		*
  *					track of certain aspects of the game			*
@@ -70,15 +75,15 @@ public:
 class Position
 {
 private:
-	std::stack<positionRecord> positionRecordSt;
+	std::vector<positionRecord> positionRecordSt;
 	colour m_stm;				// Side to move: 0 = white, 1 = black
 	char castleFlag;		// white kingside/queenside then black
 	int fiftyMoveRule;
 	bb64 piecesBB[14];
 	bb64 occupied;
 	bb64 empty;
-	bb64 enPassantTarget;
-	bb64 pinnedPieces;
+	bb64 EN_PASSANTTarget;
+
 
 public:
 	/*********************** Constructors **********************/
@@ -107,8 +112,14 @@ public:
 	************************************************************/
 	Position(std::string cBoard, colour stm);
 
+	// Copy Constructor
+	//Position(const Position& pos);
+
+	// Move Assignment
+	//Position operator=(const Position& post);
+
 	/********************** Member Methods *********************/
-	
+
 	/*************************************************************
 	*		The makeMove function updates all bitboards and		 *
 	*	other position specific variables to reflect the new	 *
@@ -137,16 +148,16 @@ public:
 	bb64 getOccupiedBB();			// returns occupied 
 	bb64 getPieceBB(pieceType);	// returns requested piece BB
 	bb64 getPieceBB(int);
-	bb64 getEnPassantTarget();		// returns target square for enP
-	
+	bb64 getEN_PASSANTTarget();		// returns target square for enP
 	pieceType getPieceOnSquare(int square);
 	int getFiftyMoveRule();
 	char getCastleFlag();
 	colour getStm();
 	void setSideToMove(colour stm);	// sets the side to move
-	std::stack<positionRecord> getPositionRecord();
+	std::vector<positionRecord> getPositionRecord();
 
-	
+
 };
 
+}
 #endif		// Inclusion guard

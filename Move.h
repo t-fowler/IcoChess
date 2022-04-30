@@ -1,6 +1,10 @@
 #pragma once
 #ifndef MOVE_H
 #define MOVE_H
+#include <string>
+
+namespace IcoChess
+{
 
 class Position;
 enum pieceType;
@@ -30,12 +34,12 @@ public:
 	*	@unsigned int flags		 -- the type of move			*
 	************************************************************/
 	Move(unsigned int fromSquare,
-			unsigned int toSquare,
-				unsigned int flags);
-	Move(Position &pos,
-		unsigned int fromSquare,
-			unsigned int toSquare,
-				unsigned int flags);
+		 unsigned int toSquare,
+		 unsigned int flags);
+	Move(Position& pos,
+		 unsigned int fromSquare,
+		 unsigned int toSquare,
+		 unsigned int flags);
 	Move();
 	~Move();
 
@@ -54,6 +58,7 @@ public:
 
 	/********************* Member Functions ********************/
 	bool isEqual(Move other);
+	std::string toString();
 };
 
 
@@ -67,7 +72,7 @@ public:
 class CandidateMoveList
 {
 private:
-	Move moveList [256];
+	Move moveList[256];
 	int size;
 
 public:
@@ -75,15 +80,15 @@ public:
 	CandidateMoveList();
 	~CandidateMoveList();
 	CandidateMoveList(Move head);
-	
+
 	//Member Functions
-	void add(const Move newMove);		//adds newMove to the end of the list. 
+	void add(Move newMove);		//adds newMove to the end of the list. 
 	void remove(int index);		//removes move from the given index.
-	bool contains(const Move& other);
-	
+	bool contains(Move move);
+
 	//Setters and Getters
 	int getSize();
 	Move getMove(int index);
 };
-
+}
 #endif	// Inclusion guard

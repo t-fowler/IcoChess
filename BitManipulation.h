@@ -4,6 +4,11 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <string>
+#include <iostream>
+
+namespace IcoChess
+{
+
 /****************************************************************
 *		This file includes names and inline functions for		*
 *	manipulating bitboards in the IcoChess program.				*
@@ -16,7 +21,7 @@
 *	@param bb64 bb		-- the 64 bit bitboard to be tested.	*
 *	@param int index	-- the position of the bit to be tested.*
 *																*
-*	@return bool		-- True if the bit is set,				* 
+*	@return bool		-- True if the bit is set,				*
 *							False otherwise.					*
 ****************************************************************/
 inline bool bbBitTest(bb64 bb, int index)
@@ -35,8 +40,11 @@ inline bool bbBitTest(bb64 bb, int index)
 *	@param bb64 &bb		-- the 64 bit bitboard.					*
 *	@param int index	-- the position of the bit to be set.	*
 ****************************************************************/
-inline void bbSetBit(bb64 &bb, int index)
+inline void bbSetBit(bb64& bb, int index)
 {
+	if (index < 0 || index > 63) {
+		throw std::out_of_range("bbBitSet index out of range");
+	}
 	bb |= (1LL << index);
 }
 
@@ -48,16 +56,29 @@ inline void bbSetBit(bb64 &bb, int index)
 *	@param bb64 &bb		-- the 64 bit bitboard.					*
 *	@param int index	-- the position of the bit to be reset.	*
 ****************************************************************/
-inline void bbResetBit(bb64 &bb, int index)
+inline void bbResetBit(bb64& bb, int index)
 {
+	if (index < 0 || index > 63) {
+		throw std::out_of_range("bbBitSet index out of range");
+	}
 	bb &= ~(1LL << index);
 }
 
-/********************************************************************
-*		msb returns only the most significant bit of the bitboard	*
-*																	*
-*	@param bb64 bitset	-- the 64 bit bitboard.						*
-*********************************************************************/
+inline bb64 bbReverse(bb64 bb)
+{
+	bb64 ans = 0;
+	for (int i = 63; i >= 0; i--) {
+		ans |= (bb & 1) << i;
+		bb >>= 1;
+	}
+	return ans;
+}
+
+/****************************************************************
+*   msb returns only the most significant bit of the bitboard	*
+*																*
+*	@param bb64 bitset	-- the 64 bit bitboard.					*
+****************************************************************/
 inline bb64 msb(bb64 bitset)
 {
 	if (bitset == 0) return -1;
@@ -202,7 +223,8 @@ bb64 souEastOne(bb64 bb);
 *	@T num				-- the number to be printed.			*
 ****************************************************************/
 template <typename T>
-inline void printBits(T num) {
+inline void printBits(T num)
+{
 	for (int i = 0; i < sizeof(num) * 8; i++) {
 		if (num & (1 << (8 * sizeof(num) - 1 - i)))
 			std::cout << 1 << " ";
@@ -215,13 +237,14 @@ inline void printBits(T num) {
 }
 
 template <typename T>
-inline std::string bitString(T num) {
+inline std::string bitString(T num)
+{
 	std::string res;
 	for (int i = 0; i < sizeof(num) * 8; i++) {
 		if (num & (1 << (8 * sizeof(num) - 1 - i)))
 			res += "1 ";
 		else res += ". ";
-		
+
 		if (i % 8 == 7) {
 			res += "\n";
 		}
@@ -235,10 +258,13 @@ inline std::string bitString(T num) {
 *																*
 *	@param bb				-- the bitboard to be used.			*
 ****************************************************************/
-static inline int indexOf(const bb64 bb) {
+static inline int indexOf(const bb64 bb)
+{
 	bb64 tmp = bb;
 	int index = 0;
 	while (tmp >>= 1) index++;
 	return index;
+}
+
 }
 #endif		// Inclusion Guard

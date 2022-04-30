@@ -7,6 +7,9 @@
 #pragma intrinsic(_BitScanForward64)
 #pragma intrinsic(_BitScanReverse64)
 
+namespace IcoChess
+{
+
 void printBB(bb64 bitboard)
 {
 	for (int rank = 7; rank >= 0; rank--) {
@@ -20,13 +23,15 @@ void printBB(bb64 bitboard)
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }
 
-int popCount64(bb64 bitset) {
+int popCount64(bb64 bitset)
+{
 	unsigned long long	k1 = 0x5555555555555555ULL,
-						k2 = 0x3333333333333333ULL,
-						k3 = 0x0f0f0f0f0f0f0f0fULL,
-						k4 = 0x0101010101010101ULL;
+		k2 = 0x3333333333333333ULL,
+		k3 = 0x0f0f0f0f0f0f0f0fULL,
+		k4 = 0x0101010101010101ULL;
 
 	/* First put the count of each duo of bits into that duo. */
 	bitset = bitset - ((bitset >> 1) & k1);
@@ -61,14 +66,16 @@ bb64 northOne(bb64 bb) { return bb << 8; }
 
 bb64 norEastOne(bb64 bb) { return northOne(eastOne(bb)); }
 
-bb64 eastOne(bb64 bb) { return (bb << 1) & ~FILES[aFile]; }
+bb64 eastOne(bb64 bb) { return (bb << 1) & ~A_FILE; }
 
 bb64 southOne(bb64 bb) { return bb >> 8; }
 
 bb64 souEastOne(bb64 bb) { return southOne(eastOne(bb)); }
 
-bb64 westOne(bb64 bb) { return (bb >> 1) & ~FILES[hFile]; }
+bb64 westOne(bb64 bb) { return (bb >> 1) & ~H_FILE; }
 
 bb64 norWestOne(bb64 bb) { return northOne(westOne(bb)); }
 
 bb64 souWestOne(bb64 bb) { return southOne(westOne(bb)); }
+
+}

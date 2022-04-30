@@ -3,11 +3,14 @@
 #include <stdlib.h>
 #include <string>
 #include <stack>
+
 #include "Move.h"
 #include "IcoUtil.h"
 #include "BitManipulation.h"
-
 #include "Position.h"
+
+namespace IcoChess
+{
 
 bb64 Position::getEmptyBB() { return empty; }
 
@@ -16,16 +19,16 @@ bb64 Position::getOccupiedBB() { return occupied; }
 bb64 Position::getPieceBB(pieceType piece) { return piecesBB[piece]; }
 bb64 Position::getPieceBB(int piece) { return piecesBB[piece]; }
 
-bb64 Position::getEnPassantTarget() { return enPassantTarget; }
+bb64 Position::getEN_PASSANTTarget() { return EN_PASSANTTarget; }
 
 pieceType Position::getPieceOnSquare(int square)
 {
 	int piece;
-	for (piece = wPawns; piece <= bKing; piece++) {
+	for (piece = W_PAWN; piece <= B_KING; piece++) {
 		if (bbBitTest(piecesBB[piece], square))
 			return pieceType(piece);
 	}
-	return noPiece;
+	return NO_PIECE;
 }
 
 int Position::getFiftyMoveRule() { return fiftyMoveRule; }
@@ -36,15 +39,16 @@ colour Position::getStm() { return m_stm; }
 
 void Position::setSideToMove(colour side) { m_stm = side; }
 
-std::stack<positionRecord> Position::getPositionRecord()
+std::vector<positionRecord> Position::getPositionRecord()
 {
 	return positionRecordSt;
 }
 
-Position::Position() {
-	positionRecordSt = std::stack<positionRecord>(); m_stm = WHITE; 
-	castleFlag = 0b1111; fiftyMoveRule = 0; enPassantTarget = 0; pinnedPieces = 0;
-	
+Position::Position()
+{
+	positionRecordSt = std::vector<positionRecord>(); m_stm = WHITE;
+	castleFlag = 0b1111; fiftyMoveRule = 0; EN_PASSANTTarget = 0;
+
 
 	/* A visual representation of the desired start position */
 	std::string cBoard[8] =
@@ -72,65 +76,66 @@ Position::Position() {
 		for (int file = 0; file <= 14; file += 2) {
 			int sqNum = 8 * rank + file / 2;
 			switch (cBoard[7 - rank][file]) {
-				case 'r':
-					bitboards[bRooks].set(sqNum);
-					break;
-				case 'n':
-					bitboards[bKnights].set(sqNum);
-					break;
-				case 'b':
-					bitboards[bBishops].set(sqNum);
-					break;
-				case 'q':
-					bitboards[bQueens].set(sqNum);
-					break;
-				case 'k':
-					bitboards[bKing].set(sqNum);
-					break;
-				case 'p':
-					bitboards[bPawns].set(sqNum);
-					break;
-				case 'P':
-					bitboards[wPawns].set(sqNum);
-					break;
-				case 'R':
-					bitboards[wRooks].set(sqNum);
-					break;
-				case 'N':
-					bitboards[wKnights].set(sqNum);
-					break;
-				case 'B':
-					bitboards[wBishops].set(sqNum);
-					break;
-				case 'Q':
-					bitboards[wQueens].set(sqNum);
-					break;
-				case 'K':
-					bitboards[wKing].set(sqNum);
-					break;
-				default : break;
+			case 'r':
+				bitboards[B_ROOK].set(sqNum);
+				break;
+			case 'n':
+				bitboards[B_KNIGHT].set(sqNum);
+				break;
+			case 'b':
+				bitboards[B_BISHOP].set(sqNum);
+				break;
+			case 'q':
+				bitboards[B_QUEEN].set(sqNum);
+				break;
+			case 'k':
+				bitboards[B_KING].set(sqNum);
+				break;
+			case 'p':
+				bitboards[B_PAWN].set(sqNum);
+				break;
+			case 'P':
+				bitboards[W_PAWN].set(sqNum);
+				break;
+			case 'R':
+				bitboards[W_ROOK].set(sqNum);
+				break;
+			case 'N':
+				bitboards[W_KNIGHT].set(sqNum);
+				break;
+			case 'B':
+				bitboards[W_BISHOP].set(sqNum);
+				break;
+			case 'Q':
+				bitboards[W_QUEEN].set(sqNum);
+				break;
+			case 'K':
+				bitboards[W_KING].set(sqNum);
+				break;
+			default: break;
 			}
 		}
 	}
 
 	/* Convert bitsets into 64 bit bitboards */
-	for (int pType = wPawns; pType <= bKing; pType++) {
+	for (int pType = W_PAWN; pType <= B_KING; pType++) {
 		piecesBB[pType] = bitboards[pType].to_ullong();
 	}
-	piecesBB[wPieces]	= piecesBB[wPawns]		| piecesBB[wKnights]
-						| piecesBB[wBishops]	| piecesBB[wRooks] 
-						| piecesBB[wQueens]		| piecesBB[wKing];
-	piecesBB[bPieces]	= piecesBB[bPawns]		| piecesBB[bKnights] 
-						| piecesBB[bBishops]	| piecesBB[bRooks] 
-						| piecesBB[bQueens]		| piecesBB[bKing];
+	piecesBB[W_PIECE] = piecesBB[W_PAWN] | piecesBB[W_KNIGHT]
+		| piecesBB[W_BISHOP] | piecesBB[W_ROOK]
+		| piecesBB[W_QUEEN] | piecesBB[W_KING];
+	piecesBB[B_PIECE] = piecesBB[B_PAWN] | piecesBB[B_KNIGHT]
+		| piecesBB[B_BISHOP] | piecesBB[B_ROOK]
+		| piecesBB[B_QUEEN] | piecesBB[B_KING];
 
-	occupied			= piecesBB[wPieces]		| piecesBB[bPieces];
-	empty				= ~occupied;
+	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
+	empty = ~occupied;
 }
 
-Position::Position(std::string cBoard, colour stm) {
-	positionRecordSt = std::stack<positionRecord>(); m_stm = stm;
-	fiftyMoveRule = 0; enPassantTarget = 0; castleFlag = 0;
+Position::Position(std::string cBoard, colour stm)
+{
+	positionRecordSt = std::vector<positionRecord>(); m_stm = stm;
+	fiftyMoveRule = 0; EN_PASSANTTarget = 0; castleFlag = 0;
 	if (cBoard[8 * 0 + 4] == 'k') { // king is on e8
 		if (cBoard[8 * 0 + 0] == 'r') // rook is on a8
 			castleFlag |= 0b0001;
@@ -155,42 +160,42 @@ Position::Position(std::string cBoard, colour stm) {
 	for (int rank = 7; rank >= 0; rank--) {
 		for (int file = 7; file >= 0; file--) {
 			int sqNum = 8 * rank + file;
-			switch (cBoard[8 * (7-rank) + file]) {
+			switch (cBoard[8 * (7 - rank) + file]) {
 			case 'r':
-				bitboards[bRooks].set(sqNum);
+				bitboards[B_ROOK].set(sqNum);
 				break;
 			case 'n':
-				bitboards[bKnights].set(sqNum);
+				bitboards[B_KNIGHT].set(sqNum);
 				break;
 			case 'b':
-				bitboards[bBishops].set(sqNum);
+				bitboards[B_BISHOP].set(sqNum);
 				break;
 			case 'q':
-				bitboards[bQueens].set(sqNum);
+				bitboards[B_QUEEN].set(sqNum);
 				break;
 			case 'k':
-				bitboards[bKing].set(sqNum);
+				bitboards[B_KING].set(sqNum);
 				break;
 			case 'p':
-				bitboards[bPawns].set(sqNum);
+				bitboards[B_PAWN].set(sqNum);
 				break;
 			case 'P':
-				bitboards[wPawns].set(sqNum);
+				bitboards[W_PAWN].set(sqNum);
 				break;
 			case 'R':
-				bitboards[wRooks].set(sqNum);
+				bitboards[W_ROOK].set(sqNum);
 				break;
 			case 'N':
-				bitboards[wKnights].set(sqNum);
+				bitboards[W_KNIGHT].set(sqNum);
 				break;
 			case 'B':
-				bitboards[wBishops].set(sqNum);
+				bitboards[W_BISHOP].set(sqNum);
 				break;
 			case 'Q':
-				bitboards[wQueens].set(sqNum);
+				bitboards[W_QUEEN].set(sqNum);
 				break;
 			case 'K':
-				bitboards[wKing].set(sqNum);
+				bitboards[W_KING].set(sqNum);
 				break;
 			default: break;
 			}
@@ -198,82 +203,83 @@ Position::Position(std::string cBoard, colour stm) {
 	}
 
 	/* Convert bitsets into 64 bit bitboards */
-	for (int pType = wPawns; pType <= bKing; pType++) {
+	for (int pType = W_PAWN; pType <= B_KING; pType++) {
 		piecesBB[pType] = bitboards[pType].to_ullong();
 	}
-	piecesBB[wPieces] = piecesBB[wPawns] | piecesBB[wKnights]
-		| piecesBB[wBishops] | piecesBB[wRooks]
-		| piecesBB[wQueens] | piecesBB[wKing];
-	piecesBB[bPieces] = piecesBB[bPawns] | piecesBB[bKnights]
-		| piecesBB[bBishops] | piecesBB[bRooks]
-		| piecesBB[bQueens] | piecesBB[bKing];
+	piecesBB[W_PIECE] = piecesBB[W_PAWN] | piecesBB[W_KNIGHT]
+		| piecesBB[W_BISHOP] | piecesBB[W_ROOK]
+		| piecesBB[W_QUEEN] | piecesBB[W_KING];
 
-	occupied = piecesBB[wPieces] | piecesBB[bPieces];
+	piecesBB[B_PIECE] = piecesBB[B_PAWN] | piecesBB[B_KNIGHT]
+		| piecesBB[B_BISHOP] | piecesBB[B_ROOK]
+		| piecesBB[B_QUEEN] | piecesBB[B_KING];
+
+	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
 	empty = ~occupied;
-	
-	/* Calculate Pinned Pieces 
-	for (int pType = wPawns; pType <= bKing; pType++) {
-
-	}*/
 }
 
-void Position::makeMove(Move move) {
-	positionRecordSt.push(positionRecord(this, move));
+void Position::makeMove(Move move)
+{
+	positionRecordSt.push_back(positionRecord(this, move));
 	bool incFifty = true;
 
 	/************************************************************
-	*		If there is a capture, remove captured piece		*
+	*		If there is a CAPTURE, remove CAPTUREd piece		*
 	************************************************************/
-	if (move.getFlags() == enPassant) {
-		piecesBB[wPawns + other(m_stm)] &= ~enPassantTarget;
-		incFifty = false;
+	if (move.getFlags() == EN_PASSANT) {
+		piecesBB[move.getCaptPiece()] &= ~EN_PASSANTTarget;
+		incFifty = false;		// reset fifty move rule.
 	}
 	else if (move.getFlags() & 0b0100) {
 		bbResetBit(piecesBB[move.getCaptPiece()], move.getToSquare());
-		incFifty = false;		// reset fifty move rule
+		incFifty = false;		// reset fifty move rule.
 	}
-	
+
 	/************************************************************
 	 *		Remove piece from origin / Add to target square		*
 	 ***********************************************************/
 	bbResetBit(piecesBB[move.getMovPiece()], move.getFromSquare());
 	if (move.getFlags() & 0b1000) { // promote piece
 		switch (move.getFlags() & 0b1011) {
-		case knPromo :
-			bbSetBit(piecesBB[wKnights + m_stm], move.getToSquare());
+		case PROMOTE_TO_KNIGHT:
+			bbSetBit(piecesBB[W_KNIGHT + m_stm], move.getToSquare());
 			break;
-		case bPromo :
-			bbSetBit(piecesBB[wBishops + m_stm], move.getToSquare());
+		case PROMOTE_TO_BISHOP:
+			bbSetBit(piecesBB[W_BISHOP + m_stm], move.getToSquare());
 			break;
-		case rPromo:
-			bbSetBit(piecesBB[wRooks + m_stm], move.getToSquare());
+		case PROMOTE_TO_ROOK:
+			bbSetBit(piecesBB[W_ROOK + m_stm], move.getToSquare());
 			break;
-		case qPromo:
-			bbSetBit(piecesBB[wQueens + m_stm], move.getToSquare());
+		case PROMOTE_TO_QUEEN:
+			bbSetBit(piecesBB[W_QUEEN + m_stm], move.getToSquare());
 			break;
 		}
-	} else 
+	}
+	else {
 		bbSetBit(piecesBB[move.getMovPiece()], move.getToSquare());
+	}
 
 	/************************************************************
 	*					Update union bitboards					*
 	************************************************************/
-	piecesBB[wPieces + m_stm]			= piecesBB[wPawns + m_stm] 
-		| piecesBB[wKnights + m_stm]	| piecesBB[wBishops + m_stm] 
-		| piecesBB[wRooks + m_stm]	| piecesBB[wQueens + m_stm]
-		| piecesBB[wKing + m_stm];
-	occupied = piecesBB[wPieces] | piecesBB[bPieces];
+	piecesBB[W_PIECE] = piecesBB[W_KING] | piecesBB[W_PAWN]
+		| piecesBB[W_KNIGHT] | piecesBB[W_BISHOP]
+		| piecesBB[W_ROOK] | piecesBB[W_QUEEN];
+	piecesBB[B_PIECE] = piecesBB[B_KING] | piecesBB[B_PAWN]
+		| piecesBB[B_KNIGHT] | piecesBB[B_BISHOP]
+		| piecesBB[B_ROOK] | piecesBB[B_QUEEN];
+	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
 	empty = ~occupied;
 
 	/************************************************************
 	* Special case for pawn moves:								*
 	*		reset fifty move rule and set en passant target		*
 	************************************************************/
-	enPassantTarget = 0;		// reset en passant target
-	if (move.getMovPiece() == wPawns || move.getMovPiece() == bPawns) {
+	EN_PASSANTTarget = 0;		// reset en passant target
+	if (move.getMovPiece() == W_PAWN || move.getMovPiece() == B_PAWN) {
 		incFifty = false;		// reset fifty move rule
-		if (move.getFlags() == dblPawnPush) {
-			bbSetBit(enPassantTarget, move.getToSquare());
+		if (move.getFlags() == DOUBLE_PAWN_PUSH) {
+			bbSetBit(EN_PASSANTTarget, move.getToSquare());
 		}
 	}
 
@@ -282,15 +288,16 @@ void Position::makeMove(Move move) {
 	else fiftyMoveRule = 0;
 }
 
-void Position::unmakeMove() {
-	positionRecord rec = positionRecordSt.top();
-	positionRecordSt.pop();
+void Position::unmakeMove()
+{
+	positionRecord rec = positionRecordSt.back();
+	positionRecordSt.pop_back();
 
 	/************************************************************
-	*		If there was a capture, replace captured piece		*
+	*		If there was a CAPTURE, replace CAPTUREd piece		*
 	************************************************************/
 	pieceType captPiece = rec.getPrevMove().getCaptPiece();
-	if (captPiece != noPiece) {
+	if (captPiece != NO_PIECE) {
 		bbSetBit(piecesBB[captPiece], rec.getPrevMove().getToSquare());
 	}
 
@@ -305,38 +312,45 @@ void Position::unmakeMove() {
 	*		Reset fifty move rule / en passant target / stm		*
 	************************************************************/
 	fiftyMoveRule = rec.getFiftyMoveRule();
-	enPassantTarget = rec.getEnPassantTarget();
+	EN_PASSANTTarget = rec.getEN_PASSANTTarget();
 	m_stm = other(m_stm);
 
 	/************************************************************
 	*					Update union bitboards					*
 	************************************************************/
-	piecesBB[wPieces + m_stm] = piecesBB[wPawns + m_stm]
-		| piecesBB[wKnights + m_stm] | piecesBB[wBishops + m_stm]
-		| piecesBB[wRooks + m_stm] | piecesBB[wQueens + m_stm]
-		| piecesBB[wKing + m_stm];
-	occupied = piecesBB[wPieces] | piecesBB[bPieces];
+	piecesBB[W_PIECE + m_stm] = piecesBB[W_PAWN + m_stm]
+		| piecesBB[W_KNIGHT + m_stm] | piecesBB[W_BISHOP + m_stm]
+		| piecesBB[W_ROOK + m_stm] | piecesBB[W_QUEEN + m_stm]
+		| piecesBB[W_KING + m_stm];
+	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
 	empty = ~occupied;
 }
 
 /***************************************************************
 */
-positionRecord::positionRecord(Position* pos, Move move) {
+positionRecord::positionRecord(Position* pos, Move move)
+{
 	prevMove = move;
 	fiftyMoveRule = pos->getFiftyMoveRule();
-	enPassantTarget = pos->getEnPassantTarget();
+	EN_PASSANTTarget = pos->getEN_PASSANTTarget();
 }
 
 void positionRecord::setPrevMove(Move move) { prevMove = move; }
 
-void positionRecord::setFiftyMoveRule(int ply) 
-{ fiftyMoveRule = ply; }
+void positionRecord::setFiftyMoveRule(int ply)
+{
+	fiftyMoveRule = ply;
+}
 
-void positionRecord::setEnPassantTarget(bb64 target) 
-{ enPassantTarget = target; }
+void positionRecord::setEN_PASSANTTarget(bb64 target)
+{
+	EN_PASSANTTarget = target;
+}
 
 Move positionRecord::getPrevMove() { return prevMove; }
 
 int positionRecord::getFiftyMoveRule() { return fiftyMoveRule; }
 
-bb64 positionRecord::getEnPassantTarget() { return enPassantTarget; }
+bb64 positionRecord::getEN_PASSANTTarget() { return EN_PASSANTTarget; }
+
+}
