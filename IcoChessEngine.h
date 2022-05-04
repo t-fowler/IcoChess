@@ -21,6 +21,8 @@ private:
 
 	void generateBishopMoves();
 
+	void generateQueenMoves();
+
 public:
 	// Constructors
 	IcoChessEngine();
