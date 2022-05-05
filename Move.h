@@ -2,6 +2,7 @@
 #ifndef MOVE_H
 #define MOVE_H
 #include <string>
+#include <vector>
 
 namespace IcoChess
 {
@@ -72,9 +73,7 @@ public:
 class CandidateMoveList
 {
 private:
-	Move moveList[256];
-	int size;
-
+	std::vector<Move> moveList;
 public:
 	//Constructors
 	CandidateMoveList();

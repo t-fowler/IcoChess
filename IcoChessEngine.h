@@ -23,6 +23,8 @@ private:
 
 	void generateQueenMoves();
 
+	void generateKingMoves();
+
 public:
 	// Constructors
 	IcoChessEngine();

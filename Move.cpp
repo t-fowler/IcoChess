@@ -154,8 +154,7 @@ std::string Move::toString()
 	}
 
 	if (getCaptPiece() != NO_PIECE) {
-		if (getMovPiece() == W_PAWN || getMovPiece() == B_PAWN)
-			str += 'x';
+		str += 'x';
 	}
 
 	switch (getToSquare() % 8) {
@@ -256,7 +255,6 @@ Move::~Move()
 
 CandidateMoveList::CandidateMoveList()
 {
-	size = 0;
 }
 
 CandidateMoveList::~CandidateMoveList()
@@ -264,34 +262,29 @@ CandidateMoveList::~CandidateMoveList()
 
 CandidateMoveList::CandidateMoveList(Move h)
 {
-	moveList[0] = h;
-	size = 1;
+	moveList.push_back(h);
 }
 
 void CandidateMoveList::add(Move newMove)
 {
-	moveList[size] = newMove;
-	size++;
+	moveList.push_back(newMove);
 }
 
 void CandidateMoveList::remove(int index)
 {
-	for (int i = index; i < size - 1; i++) {
-		moveList[i] = moveList[i + 1];
-	}
-	size--;
+	moveList.erase(moveList.begin() + index);
 }
 
 bool CandidateMoveList::contains(Move move)
 {
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < getSize(); i++) {
 		if (moveList[i].isEqual(move))
 			return true;
 	}
 	return false;
 }
 
-int CandidateMoveList::getSize() { return size; }
+int CandidateMoveList::getSize() { return moveList.size(); }
 
 Move CandidateMoveList::getMove(int index) { return moveList[index]; }
 

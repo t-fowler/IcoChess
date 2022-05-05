@@ -1,15 +1,11 @@
 #include <iostream>
+
 #include "IcoUtil.h"
 #include "BitManipulation.h"
 #include "Position.h"
 
 namespace IcoChess
 {
-
-colour other(colour side)
-{
-	return colour(!side);
-}
 
 std::array<std::array<bb64, 8>, 64> initAttackRays()
 {
@@ -22,7 +18,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][NORTH] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the east.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][EAST] = 0;
@@ -30,7 +25,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][EAST] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the south.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][SOUTH] = 0;
@@ -38,7 +32,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][SOUTH] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the west.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][WEST] = 0;
@@ -46,7 +39,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][WEST] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the northWest.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][NORTH_WEST] = 0;
@@ -54,7 +46,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][NORTH_WEST] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the northEast.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][NORTH_EAST] = 0;
@@ -62,7 +53,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][NORTH_EAST] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the southWest.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][SOUTH_WEST] = 0;
@@ -70,7 +60,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][SOUTH_WEST] |= tmp;
 		}
 	}
-
 	// Generate sliding attacks to the southEast.
 	for (int sq = a1; sq <= h8; sq++) {
 		result[sq][SOUTH_EAST] = 0;
@@ -78,7 +67,6 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 			result[sq][SOUTH_EAST] |= tmp;
 		}
 	}
-
 	/*
 	// Generate bishop attacks
 	for (int sq = a1; sq <= h8; sq++) {
@@ -97,7 +85,41 @@ std::array<std::array<bb64, 8>, 64> initAttackRays()
 		result[sq][2] = result[sq][0] | result[sq][1];
 	}
 	*/
+	return result;
+}
 
+std::array<bb64, 64> initKnightAttacks()
+{
+	std::array<bb64, 64> result;
+	for (int sq = a1; sq <= h8; sq++) {
+		bb64 knight = 1ULL << sq;
+		result[sq] = 0;
+		result[sq] = northOne(norEastOne(knight))
+				   | eastOne(norEastOne(knight))
+				   | eastOne(souEastOne(knight))
+				   | southOne(souEastOne(knight))
+				   | southOne(souWestOne(knight))
+				   | westOne(souWestOne(knight))
+				   | westOne(norWestOne(knight))
+				   | northOne(norWestOne(knight));
+	}
+	return result;
+}
+
+std::array<bb64, 64> initKingAttacks()
+{
+	std::array<bb64, 64> result;
+	for (int sq = a1; sq <= h8; sq++) {
+		bb64 king = 1ULL << sq;
+		result[sq] = northOne(king)
+				   | norEastOne(king)
+				   | eastOne(king)
+				   | souEastOne(king)
+			       | southOne(king)
+			       | souWestOne(king)
+				   | westOne(king)
+				   | norWestOne(king);
+	}
 	return result;
 }
 

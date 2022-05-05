@@ -2,15 +2,21 @@
 #ifndef ICOUTIL_H
 #define ICOUTIL_H
 #include <array>
+//
+// /file IcoUtil.h
+// This header provides type definitions and enumerations used by the IcoChess
+// program. There are also a some constants defined that are used as masks for
+// bitboards. Print functions are also provided for debugging.
+//
 
 namespace IcoChess {
 
-typedef unsigned long long bb64;
+typedef unsigned long long bb64;	// 64-bit bitboard
 class Position;
 class Move;
 
 enum square
-{
+{	// Little endian rank-file ordering: sq = 8 * rankIndex + fileIndex.
 	a1, b1, c1, d1, e1, f1, g1, h1,
 	a2, b2, c2, d2, e2, f2, g2, h2,
 	a3, b3, c3, d3, e3, f3, g3, h3,
@@ -40,11 +46,17 @@ enum flag
 };
 
 enum colour : bool { WHITE, BLACK };
-colour other(colour side);	// returns the colour opposite to side
+
+// returns the colour opposite to col.
+inline colour other(colour col)
+{
+	return colour(!col);
+}
+
 
 /********************************************************************
- *	pieceType	-- an enumeration used for accessing the correct	*
- *	index of the piecesBB array.									*
+ *	pieceType	-- an enumeration used for accessing the correct
+ *	index of the piecesBB array.
  ********************************************************************/
 enum pieceType
 {
@@ -128,9 +140,11 @@ D8_H4_DIAGONAL = 0x0810204080000000,
 C8_H3_DIAGONAL = 0x0408102040800000,
 B8_H2_DIAGONAL = 0x0204081020408000;
 
-constexpr bb64 FILE[8] = { A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE };
+constexpr bb64 FILE[8] = 
+{ A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE };
 
-constexpr bb64 RANK[8] = { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
+constexpr bb64 RANK[8] = 
+{ RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8 };
 
 constexpr bb64 DIAGONAL[16] = { 
 	A1_H8_DIAGONAL, A2_G8_DIAGONAL, A3_F8_DIAGONAL, A4_E8_DIAGONAL,
@@ -146,9 +160,22 @@ constexpr bb64 ANTI_DIAGONAL[16] = {
 	E8_H5_DIAGONAL, D8_H4_DIAGONAL, C8_H3_DIAGONAL, B8_H2_DIAGONAL
 };
 
+// This function initializes the ATTACK_RAYS lookup tables. It fills
+// the array with attack rays on an open board in each direction on
+// every square on the board.
 std::array<std::array<bb64, 8>, 64> initAttackRays();
 
+// Initializes the KNIGHT_ATTACKS lookup table.
+std::array<bb64, 64> initKnightAttacks();
+
+// Initializes the KING_ATTACKS lookup table.
+std::array<bb64, 64> initKingAttacks();
+
 const std::array<std::array<bb64, 8>, 64> ATTACK_RAYS = initAttackRays();
+
+const std::array<bb64, 64> KNIGHT_ATTACKS = initKnightAttacks();
+
+const std::array<bb64, 64> KING_ATTACKS = initKingAttacks();
 
 //const std::array<std::array<bb64, 64>, 6> PIECE_ATTACKS = initPieceAttacks();
 

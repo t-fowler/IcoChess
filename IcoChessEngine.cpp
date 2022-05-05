@@ -20,11 +20,12 @@ void IcoChessEngine::generateMoves()
 	/***********************************************************
 	*				TODO: IMPLEMENT CASTLING				   *
 	***********************************************************/
-
 	generatePawnMoves();
+	generateKnightMoves();
 	generateBishopMoves();
 	generateRookMoves();
 	generateQueenMoves();
+	generateKingMoves();
 }
 
 void IcoChessEngine::generatePawnMoves()
@@ -203,33 +204,25 @@ void IcoChessEngine::generatePawnMoves()
 
 void IcoChessEngine::generateKnightMoves() 
 {
-
-}
-
-void IcoChessEngine::generateRookMoves()
-{
 	if (pos.getStm() == WHITE) {
-		bb64 rooks = pos.getPieceBB(W_ROOK);
-		while (rooks) {
-			unsigned int fromSquare = bitScanForward(rooks);
-			bb64 targets = lineAttacks(fromSquare);
+		bb64 knights = pos.getPieceBB(W_KNIGHT);
+		while (knights) {
+			unsigned int fromSquare = bitScanForward(knights);
+			bb64 targets = KNIGHT_ATTACKS[fromSquare] & ~pos.getPieceBB(W_PIECE);
 
-			// remove processed rook
-			bbResetBit(rooks, fromSquare);
+			// remove processed knight
+			bbResetBit(knights, fromSquare);
 
 			while (targets) {
 				unsigned int flags = QUIET_MOVE;
 				unsigned int toSquare = bitScanForward(targets);
 				bb64 targetSquare = 1ULL << toSquare;
 
-				// Remove processed target square.
+				// remove processed target
 				bbResetBit(targets, toSquare);
 
-				// Check for collision with another piece.
-				if (targetSquare & pos.getPieceBB(W_PIECE)) {
-					continue;
-				}
-				else if (targetSquare & pos.getPieceBB(B_PIECE)) {
+				// Check for capture.
+				if (targetSquare & pos.getPieceBB(B_PIECE)) {
 					flags |= CAPTURE;
 				}
 
@@ -239,10 +232,41 @@ void IcoChessEngine::generateRookMoves()
 		}
 	}
 	else if (pos.getStm() == BLACK) {
-		bb64 rooks = pos.getPieceBB(B_ROOK);
+		bb64 knights = pos.getPieceBB(B_KNIGHT);
+		while (knights) {
+			unsigned int fromSquare = bitScanForward(knights);
+			bb64 targets = KNIGHT_ATTACKS[fromSquare] & ~pos.getPieceBB(B_PIECE);
+
+			// remove processed knight
+			bbResetBit(knights, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// remove processed target
+				bbResetBit(targets, toSquare);
+
+				// Check for capture.
+				if (targetSquare & pos.getPieceBB(W_PIECE)) {
+					flags |= CAPTURE;
+				}
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+}
+
+void IcoChessEngine::generateRookMoves()
+{
+	if (pos.getStm() == WHITE) {
+		bb64 rooks = pos.getPieceBB(W_ROOK);
 		while (rooks) {
 			unsigned int fromSquare = bitScanForward(rooks);
-			bb64 targets = lineAttacks(fromSquare);
+			bb64 targets = lineAttacks(fromSquare) & ~pos.getPieceBB(W_PIECE);
 
 			// remove processed rook
 			bbResetBit(rooks, fromSquare);
@@ -257,9 +281,33 @@ void IcoChessEngine::generateRookMoves()
 
 				// Check for collision with another piece.
 				if (targetSquare & pos.getPieceBB(B_PIECE)) {
-					continue;
+					flags |= CAPTURE;
 				}
-				else if (targetSquare & pos.getPieceBB(W_PIECE)) {
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+	else if (pos.getStm() == BLACK) {
+		bb64 rooks = pos.getPieceBB(B_ROOK);
+		while (rooks) {
+			unsigned int fromSquare = bitScanForward(rooks);
+			bb64 targets = lineAttacks(fromSquare) & ~pos.getPieceBB(B_PIECE);
+
+			// remove processed rook
+			bbResetBit(rooks, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// Remove processed target square.
+				bbResetBit(targets, toSquare);
+
+				// Check for collision with another piece.
+				if (targetSquare & pos.getPieceBB(W_PIECE)) {
 					flags |= CAPTURE;
 				}
 
@@ -277,37 +325,7 @@ void IcoChessEngine::generateBishopMoves()
 		bb64 bishops = pos.getPieceBB(W_BISHOP);
 		while (bishops) {
 			unsigned int fromSquare = bitScanForward(bishops);
-			bb64 targets = diagonalAttacks(fromSquare);
-
-			// remove processed rook
-			bbResetBit(bishops, fromSquare);
-
-			while (targets) {
-				unsigned int flags = QUIET_MOVE;
-				unsigned int toSquare = bitScanForward(targets);
-				bb64 targetSquare = 1ULL << toSquare;
-
-				// Remove processed target square.
-				bbResetBit(targets, toSquare);
-
-				// Check for collision with another piece.
-				if (targetSquare & pos.getPieceBB(W_PIECE)) {
-					continue;
-				}
-				else if (targetSquare & pos.getPieceBB(B_PIECE)) {
-					flags |= CAPTURE;
-				}
-
-				// Add move to move list.
-				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
-			}
-		}
-	}
-	else if (pos.getStm() == BLACK) {
-		bb64 bishops = pos.getPieceBB(B_BISHOP);
-		while (bishops) {
-			unsigned int fromSquare = bitScanForward(bishops);
-			bb64 targets = diagonalAttacks(fromSquare);
+			bb64 targets = diagonalAttacks(fromSquare) & ~pos.getPieceBB(W_PIECE);
 
 			// remove processed rook
 			bbResetBit(bishops, fromSquare);
@@ -322,9 +340,33 @@ void IcoChessEngine::generateBishopMoves()
 
 				// Check for collision with another piece.
 				if (targetSquare & pos.getPieceBB(B_PIECE)) {
-					continue;
+					flags |= CAPTURE;
 				}
-				else if (targetSquare & pos.getPieceBB(W_PIECE)) {
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+	else if (pos.getStm() == BLACK) {
+		bb64 bishops = pos.getPieceBB(B_BISHOP);
+		while (bishops) {
+			unsigned int fromSquare = bitScanForward(bishops);
+			bb64 targets = diagonalAttacks(fromSquare) & ~pos.getPieceBB(B_PIECE);
+
+			// remove processed rook
+			bbResetBit(bishops, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// Remove processed target square.
+				bbResetBit(targets, toSquare);
+
+				// Check for collision with another piece.
+				if (targetSquare & pos.getPieceBB(W_PIECE)) {
 					flags |= CAPTURE;
 				}
 
@@ -341,39 +383,9 @@ void IcoChessEngine::generateQueenMoves()
 		bb64 queens = pos.getPieceBB(W_QUEEN);
 		while (queens) {
 			unsigned int fromSquare = bitScanForward(queens);
-			bb64 targets = lineAttacks(fromSquare) 
-				         | diagonalAttacks(fromSquare);
-
-			// remove processed rook
-			bbResetBit(queens, fromSquare);
-
-			while (targets) {
-				unsigned int flags = QUIET_MOVE;
-				unsigned int toSquare = bitScanForward(targets);
-				bb64 targetSquare = 1ULL << toSquare;
-
-				// Remove processed target square.
-				bbResetBit(targets, toSquare);
-
-				// Check for collision with another piece.
-				if (targetSquare & pos.getPieceBB(W_PIECE)) {
-					continue;
-				}
-				else if (targetSquare & pos.getPieceBB(B_PIECE)) {
-					flags |= CAPTURE;
-				}
-
-				// Add move to move list.
-				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
-			}
-		}
-	}
-	else if (pos.getStm() == BLACK) {
-		bb64 queens = pos.getPieceBB(B_QUEEN);
-		while (queens) {
-			unsigned int fromSquare = bitScanForward(queens);
-			bb64 targets = lineAttacks(fromSquare)
-						 | diagonalAttacks(fromSquare);
+			bb64 targets = (lineAttacks(fromSquare) 
+				         | diagonalAttacks(fromSquare))
+						 & ~pos.getPieceBB(W_PIECE);
 
 			// remove processed rook
 			bbResetBit(queens, fromSquare);
@@ -388,9 +400,93 @@ void IcoChessEngine::generateQueenMoves()
 
 				// Check for collision with another piece.
 				if (targetSquare & pos.getPieceBB(B_PIECE)) {
-					continue;
+					flags |= CAPTURE;
 				}
-				else if (targetSquare & pos.getPieceBB(W_PIECE)) {
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+	else if (pos.getStm() == BLACK) {
+		bb64 queens = pos.getPieceBB(B_QUEEN);
+		while (queens) {
+			unsigned int fromSquare = bitScanForward(queens);
+			bb64 targets = (lineAttacks(fromSquare)
+						 | diagonalAttacks(fromSquare))
+						 & ~pos.getPieceBB(B_PIECE);
+
+			// remove processed rook
+			bbResetBit(queens, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// Remove processed target square.
+				bbResetBit(targets, toSquare);
+
+				// Check for collision with another piece.
+				if (targetSquare & pos.getPieceBB(W_PIECE)) {
+					flags |= CAPTURE;
+				}
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+}
+
+void IcoChessEngine::generateKingMoves()
+{
+	if (pos.getStm() == WHITE) {
+		bb64 king = pos.getPieceBB(W_KING);
+		while (king) {
+			unsigned int fromSquare = bitScanForward(king);
+			bb64 targets = KING_ATTACKS[fromSquare] & ~pos.getPieceBB(W_PIECE);
+
+			// remove processed knight
+			bbResetBit(king, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// remove processed target
+				bbResetBit(targets, toSquare);
+
+				// Check for capture.
+				if (targetSquare & pos.getPieceBB(B_PIECE)) {
+					flags |= CAPTURE;
+				}
+
+				// Add move to move list.
+				quietMoves.add(Move(pos, fromSquare, toSquare, flags));
+			}
+		}
+	}
+	else if (pos.getStm() == BLACK) {
+		bb64 king = pos.getPieceBB(B_KING);
+		while (king) {
+			unsigned int fromSquare = bitScanForward(king);
+			bb64 targets = KING_ATTACKS[fromSquare] & ~pos.getPieceBB(B_PIECE);
+
+			// remove processed knight
+			bbResetBit(king, fromSquare);
+
+			while (targets) {
+				unsigned int flags = QUIET_MOVE;
+				unsigned int toSquare = bitScanForward(targets);
+				bb64 targetSquare = 1ULL << toSquare;
+
+				// remove processed target
+				bbResetBit(targets, toSquare);
+
+				// Check for capture.
+				if (targetSquare & pos.getPieceBB(W_PIECE)) {
 					flags |= CAPTURE;
 				}
 

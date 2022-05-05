@@ -741,7 +741,60 @@ void testPawnMovesWhiteEnPassantFromA5()
 
 void testKnightMoves()
 {
+	std::cout << "Test knight moves for white. Test 1:" << std::endl;
+	std::cout << "===============================================" << std::endl;
+	std::cout << " Moves after:	1.Nf3 e5  2. Nxe5 d5  3. d4 Nc6  4. Na3 Nh6" << std::endl;
+	Position pos;
+	pos.makeMove(Move(pos, g1, f3, QUIET_MOVE));
+	pos.makeMove(Move(pos, e7, e5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, f3, e5, CAPTURE));
+	pos.makeMove(Move(pos, d7, d5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, d2, d4, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, b8, c6, QUIET_MOVE));
+	pos.makeMove(Move(pos, b1, a3, QUIET_MOVE));
+	pos.makeMove(Move(pos, g8, h6, QUIET_MOVE));
 
+	IcoChessEngine ico(pos);
+	ico.generateMoves();
+
+	CandidateMoveList moves = ico.getMoves();
+	std::cout << "    " << moves.getSize() << " moves found." << std::endl;
+	std::cout << "===============================================" << std::endl;
+
+	for (int i = 0; i < moves.getSize(); i++) {
+		std::cout << moves.getMove(i).toString() << std::endl;
+		Position p = ico.getPosition();
+		p.makeMove(moves.getMove(i));
+		printChessBoard(p);
+	}
+
+	std::cout << "Test knight moves for black. Test 2:" << std::endl;
+	std::cout << "===============================================" << std::endl;
+	std::cout << " Moves after:	1.Nf3 e5  2. Nxe5 d5  3. d4 Nc6  4. Na3 Nh6 5. Nb5 ..." << std::endl;
+	pos = Position();
+	pos.makeMove(Move(pos, g1, f3, QUIET_MOVE));
+	pos.makeMove(Move(pos, e7, e5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, f3, e5, CAPTURE));
+	pos.makeMove(Move(pos, d7, d5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, d2, d4, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, b8, c6, QUIET_MOVE));
+	pos.makeMove(Move(pos, b1, a3, QUIET_MOVE));
+	pos.makeMove(Move(pos, g8, h6, QUIET_MOVE));
+	pos.makeMove(Move(pos, a3, b5, QUIET_MOVE));
+
+	ico = IcoChessEngine(pos);
+	ico.generateMoves();
+
+	moves = ico.getMoves();
+	std::cout << "    " << moves.getSize() << " moves found." << std::endl;
+	std::cout << "===============================================" << std::endl;
+
+	for (int i = 0; i < moves.getSize(); i++) {
+		std::cout << moves.getMove(i).toString() << std::endl;
+		Position p = ico.getPosition();
+		p.makeMove(moves.getMove(i));
+		printChessBoard(p);
+	}
 }
 
 void testBishopMoves()
@@ -753,7 +806,7 @@ void testBishopMoves()
 	pos.makeMove(Move(pos, g2, g3, QUIET_MOVE));
 	pos.makeMove(Move(pos, e7, e5, DOUBLE_PAWN_PUSH));
 	pos.makeMove(Move(pos, f1, g2, QUIET_MOVE));
-	pos.makeMove(Move(pos, f7, f5, QUIET_MOVE));
+	pos.makeMove(Move(pos, f7, f5, DOUBLE_PAWN_PUSH));
 	pos.makeMove(Move(pos, g2, d5, QUIET_MOVE));
 	pos.makeMove(Move(pos, g8, f6, QUIET_MOVE));
 	pos.makeMove(Move(pos, e2, e4, DOUBLE_PAWN_PUSH));
@@ -915,13 +968,69 @@ void testQueenMoves()
 	}
 }
 
+void testKingMoves()
+{
+	std::cout << "Test king moves for white. Test 1:" << std::endl;
+	std::cout << "===============================================" << std::endl;
+	std::cout << " Moves after:	1.e4 e5  2. ke2 d5  3. f3 Nc6" << std::endl;
+	Position pos;
+	pos.makeMove(Move(pos, e2, e4, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, e7, e5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, e1, e2, QUIET_MOVE));
+	pos.makeMove(Move(pos, d7, d5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, f2, f3, QUIET_MOVE));
+	pos.makeMove(Move(pos, b8, c6, QUIET_MOVE));
+
+	IcoChessEngine ico(pos);
+	ico.generateMoves();
+
+	CandidateMoveList moves = ico.getMoves();
+	std::cout << "    " << moves.getSize() << " moves found." << std::endl;
+	std::cout << "===============================================" << std::endl;
+
+	for (int i = 0; i < moves.getSize(); i++) {
+		std::cout << moves.getMove(i).toString() << std::endl;
+		Position p = ico.getPosition();
+		p.makeMove(moves.getMove(i));
+		printChessBoard(p);
+	}
+
+	std::cout << "Test king moves for black. Test 2:" << std::endl;
+	std::cout << "===============================================" << std::endl;
+	std::cout << " Moves after:	1.e4 e5  2. ke2 d5  3. f3 ..." << std::endl;
+	pos = Position();
+	pos.makeMove(Move(pos, e2, e4, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, e7, e5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, e1, e2, QUIET_MOVE));
+	pos.makeMove(Move(pos, d7, d5, DOUBLE_PAWN_PUSH));
+	pos.makeMove(Move(pos, f2, f3, QUIET_MOVE));
+
+	ico = IcoChessEngine(pos);
+	ico.generateMoves();
+
+	moves = ico.getMoves();
+	std::cout << "    " << moves.getSize() << " moves found." << std::endl;
+	std::cout << "===============================================" << std::endl;
+
+	for (int i = 0; i < moves.getSize(); i++) {
+		std::cout << moves.getMove(i).toString() << std::endl;
+		Position p = ico.getPosition();
+		p.makeMove(moves.getMove(i));
+		printChessBoard(p);
+	}
+}
+
 void testMoveGeneration()
 {
 	std::cout << "    BEGIN MOVE GENERATION TESTS." << std::endl;
 	testPawnMovesBlackEnPassant();
 	testPawnMovesWhiteEnPassant();
 	testPawnMovesWhiteEnPassantFromA5();
+	testKnightMoves();
 	testBishopMoves();
+	testRookMoves();
+	testQueenMoves();
+	testKingMoves();
 }
 
 void testLineAttacks()
@@ -997,7 +1106,7 @@ int main()
 	//testUnmakeMoves();
 	//testMoves();
 	//testIcoMoveGenerator();
-	//testCandidateMoveList();
+	//IcoChess::testCandidateMoveList();
 	//testBitManip();
 	//testPrintChess();
 	//testEN_PASSANT();
@@ -1010,11 +1119,11 @@ int main()
 	//IcoChess::testMoveGeneration();
 	//IcoChess::testLineAttacks();
 	//IcoChess::testDiagonalAttacks();
+	//IcoChess::testKnightMoves();
 	//IcoChess::testBishopMoves();
 	//IcoChess::testRookMoves();
-	IcoChess::testQueenMoves();
-
-
+	//IcoChess::testQueenMoves();
+	//IcoChess::testKingMoves();
 
 	system("Pause");
 }
