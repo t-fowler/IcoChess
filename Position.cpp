@@ -19,7 +19,7 @@ bb64 Position::getOccupiedBB() { return occupied; }
 bb64 Position::getPieceBB(pieceType piece) { return piecesBB[piece]; }
 bb64 Position::getPieceBB(int piece) { return piecesBB[piece]; }
 
-bb64 Position::getEN_PASSANTTarget() { return EN_PASSANTTarget; }
+bb64 Position::getEnPassantTarget() { return enPassantTarget; }
 
 pieceType Position::getPieceOnSquare(int square)
 {
@@ -47,7 +47,7 @@ std::vector<positionRecord> Position::getPositionRecord()
 Position::Position()
 {
 	positionRecordSt = std::vector<positionRecord>(); m_stm = WHITE;
-	castleFlag = 0b1111; fiftyMoveRule = 0; EN_PASSANTTarget = 0;
+	castleFlag = 0b1111; fiftyMoveRule = 0; enPassantTarget = 0;
 
 
 	/* A visual representation of the desired start position */
@@ -135,7 +135,7 @@ Position::Position()
 Position::Position(std::string cBoard, colour stm)
 {
 	positionRecordSt = std::vector<positionRecord>(); m_stm = stm;
-	fiftyMoveRule = 0; EN_PASSANTTarget = 0; castleFlag = 0;
+	fiftyMoveRule = 0; enPassantTarget = 0; castleFlag = 0;
 	if (cBoard[8 * 0 + 4] == 'k') { // king is on e8
 		if (cBoard[8 * 0 + 0] == 'r') // rook is on a8
 			castleFlag |= 0b0001;
@@ -227,7 +227,7 @@ void Position::makeMove(Move move)
 	*		If there is a CAPTURE, remove CAPTUREd piece		*
 	************************************************************/
 	if (move.getFlags() == EN_PASSANT) {
-		piecesBB[move.getCaptPiece()] &= ~EN_PASSANTTarget;
+		piecesBB[move.getCaptPiece()] &= ~enPassantTarget;
 		incFifty = false;		// reset fifty move rule.
 	}
 	else if (move.getFlags() & 0b0100) {
@@ -275,11 +275,11 @@ void Position::makeMove(Move move)
 	* Special case for pawn moves:								*
 	*		reset fifty move rule and set en passant target		*
 	************************************************************/
-	EN_PASSANTTarget = 0;		// reset en passant target
+	enPassantTarget = 0;		// reset en passant target
 	if (move.getMovPiece() == W_PAWN || move.getMovPiece() == B_PAWN) {
 		incFifty = false;		// reset fifty move rule
 		if (move.getFlags() == DOUBLE_PAWN_PUSH) {
-			bbSetBit(EN_PASSANTTarget, move.getToSquare());
+			bbSetBit(enPassantTarget, move.getToSquare());
 		}
 	}
 
@@ -312,7 +312,7 @@ void Position::unmakeMove()
 	*		Reset fifty move rule / en passant target / stm		*
 	************************************************************/
 	fiftyMoveRule = rec.getFiftyMoveRule();
-	EN_PASSANTTarget = rec.getEN_PASSANTTarget();
+	enPassantTarget = rec.getEnPassantTarget();
 	m_stm = other(m_stm);
 
 	/************************************************************
@@ -332,7 +332,7 @@ positionRecord::positionRecord(Position* pos, Move move)
 {
 	prevMove = move;
 	fiftyMoveRule = pos->getFiftyMoveRule();
-	EN_PASSANTTarget = pos->getEN_PASSANTTarget();
+	enPassantTarget = pos->getEnPassantTarget();
 }
 
 void positionRecord::setPrevMove(Move move) { prevMove = move; }
@@ -342,15 +342,15 @@ void positionRecord::setFiftyMoveRule(int ply)
 	fiftyMoveRule = ply;
 }
 
-void positionRecord::setEN_PASSANTTarget(bb64 target)
+void positionRecord::setenPassantTarget(bb64 target)
 {
-	EN_PASSANTTarget = target;
+	enPassantTarget = target;
 }
 
 Move positionRecord::getPrevMove() { return prevMove; }
 
 int positionRecord::getFiftyMoveRule() { return fiftyMoveRule; }
 
-bb64 positionRecord::getEN_PASSANTTarget() { return EN_PASSANTTarget; }
+bb64 positionRecord::getEnPassantTarget() { return enPassantTarget; }
 
 }

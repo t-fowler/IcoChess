@@ -35,11 +35,11 @@ void IcoChessEngine::generatePawnMoves()
 		bb64 singlePushTargets = northOne(pawnsToMove) & pos.getEmptyBB();
 		bb64 dblPushTargets = (northOne(singlePushTargets) & RANK_4) & pos.getEmptyBB();
 		bb64 pawnAttackTargets = (norEastOne(pawnsToMove) | norWestOne(pawnsToMove)) & pos.getPieceBB(B_PIECE);
-		bb64 EN_PASSANTTargets = pos.getEN_PASSANTTarget();
+		bb64 enPassantTargets = pos.getEnPassantTarget();
 
-		if (EN_PASSANTTargets) {
-			int toSquare = bitScanForward(EN_PASSANTTargets) + 8;
-			int fromSquare = toSquare - 9; // Valid EN_PASSANTTargets will not result in fromSquare == 0
+		if (enPassantTargets) {
+			int toSquare = bitScanForward(enPassantTargets) + 8;
+			int fromSquare = toSquare - 9; // Valid enPassantTargets will not result in fromSquare == 0
 
 			if (fromSquare & ~H_FILE && pos.getPieceOnSquare(fromSquare) == W_PAWN) {
 				quietMoves.add(Move(pos, fromSquare, toSquare, EN_PASSANT));
@@ -120,11 +120,11 @@ void IcoChessEngine::generatePawnMoves()
 		bb64 singlePushTargets = southOne(pawnsToMove) & pos.getEmptyBB();
 		bb64 dblPushTargets = (southOne(singlePushTargets) & RANK_5) & pos.getEmptyBB();
 		bb64 pawnAttackTargets = (souEastOne(pawnsToMove) | souWestOne(pawnsToMove)) & pos.getPieceBB(W_PIECE);
-		bb64 EN_PASSANTTargets = pos.getEN_PASSANTTarget();
+		bb64 enPassantTargets = pos.getEnPassantTarget();
 
-		if (EN_PASSANTTargets) {
-			unsigned int toSquare = bitScanForward(EN_PASSANTTargets) - 8;
-			unsigned int fromSquare = toSquare + 7; // Valid EN_PASSANTTargets will not result in fromSquare == 0
+		if (enPassantTargets) {
+			unsigned int toSquare = bitScanForward(enPassantTargets) - 8;
+			unsigned int fromSquare = toSquare + 7; // Valid enPassantTargets will not result in fromSquare == 0
 
 			if (fromSquare & ~H_FILE && pos.getPieceOnSquare(fromSquare) == B_PAWN) {
 				quietMoves.add(Move(pos, fromSquare, toSquare, EN_PASSANT));

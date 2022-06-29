@@ -19,7 +19,7 @@ class positionRecord
 private:
 	Move prevMove;			// The move that was made
 	int fiftyMoveRule;		// Half move clock before the move
-	bb64 EN_PASSANTTarget;	// If there was an EN_PASSANTTarget
+	bb64 enPassantTarget;	// If there was an enPassantTarget
 
 public:
 	/****************************************************************
@@ -39,11 +39,11 @@ public:
 	************************************************************/
 	void setPrevMove(Move move);
 	void setFiftyMoveRule(int ply);
-	void setEN_PASSANTTarget(bb64 target);
+	void setenPassantTarget(bb64 target);
 
 	Move getPrevMove();
 	int getFiftyMoveRule();
-	bb64 getEN_PASSANTTarget();
+	bb64 getEnPassantTarget();
 };
 
 /********************************************************************
@@ -64,7 +64,7 @@ public:
  *			union of all the white and black pieces respectively	*
  *	occupied	-- the set of all occupied squares					*
  *	empty		-- the set of all empty squares						*
- *	EN_PASSANTTarget		-- the set of all pawns that can be taken	*
+ *	enPassantTarget		-- the set of all pawns that can be taken	*
 					en passant. Usually set to 0					*
  *  positionRecordSt	-- A stack of positionRecords that keep		*
  *					track of certain aspects of the game			*
@@ -82,7 +82,7 @@ private:
 	bb64 piecesBB[14];
 	bb64 occupied;
 	bb64 empty;
-	bb64 EN_PASSANTTarget;
+	bb64 enPassantTarget;
 
 
 public:
@@ -148,7 +148,7 @@ public:
 	bb64 getOccupiedBB();			// returns occupied 
 	bb64 getPieceBB(pieceType);	// returns requested piece BB
 	bb64 getPieceBB(int);
-	bb64 getEN_PASSANTTarget();		// returns target square for enP
+	bb64 getEnPassantTarget();		// returns target square for enP
 	pieceType getPieceOnSquare(int square);
 	int getFiftyMoveRule();
 	char getCastleFlag();

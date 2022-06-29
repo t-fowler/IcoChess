@@ -38,21 +38,27 @@ void testConstants()
 	for (int i = 0; i < 16; i++) {
 		printBB(ANTI_DIAGONAL[i]);
 	}
+	std::cout 
+	<< "-------------------------------------------------------------------------------" 
+	<< std::endl;
 }
 
 void testMsb()
 {
 	bb64 bb = 0;
-	if (msb(bb) != (unsigned long long) - 1) std::cout << "Test 1: wrong index at 0." << std::endl;
+	if (msb(bb) != (unsigned long long) -1) std::cout << "Test 1: wrong index at 0." << std::endl;
 	for (int i = 1; i < 63; i++) {
 		bb = (1ULL << i);
 		if (msb(bb) != 1ULL << (i + 1)) {
 			std::cout << "Test 1: wrong index at " << i << "." << std::endl;
+			return;
 		}
 		if (msb(bb - 1) != 1ULL << i) {
 			std::cout << "Test 2: wrong index at " << i << "." << std::endl;
+			return;
 		}
 	}
+	std::cout << "testMsb: PASS." << std::endl;
 }
 
 void testIndexOf()
@@ -61,12 +67,13 @@ void testIndexOf()
 	int currIndex = 0;
 	do {
 		if (indexOf(bb) != currIndex) {
-			std::cout << "indexOf returned " << indexOf(bb)
-				<< ". It should have returned " << currIndex << ".\n";
+			std::cout << "testIndexOf: FAIL. Returned: " << indexOf(bb)
+				<< ". Expected: " << currIndex << "." << std::endl;
+			return;
 		}
 		if (popCount64(++bb) == 1) currIndex++;
 	} while (bb != 1ULL << 29);
-
+	std::cout << "testIndexOf: PASS." << std::endl;
 }
 
 void testDirections()
@@ -75,46 +82,59 @@ void testDirections()
 
 	bb64 bb = 0x0000000000000100;
 	if (northOne(bb) != 0x0000000000010000) {
-		std::cerr << "ERROR TEST 1!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << northOne(bb)
+			<< "Expected: " << 0x0000000000010000 << std::endl;
 		success = false;
 	}
 
 	if (southOne(bb) != 0x0000000000000001) {
-		std::cerr << "ERROR TEST 2!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << southOne(bb)
+			<< "Expected: " << 0x0000000000000001 << std::endl;
 		success = false;
 	}
 
 	if (westOne(bb) != 0x0000000000000000) {
-		std::cerr << "ERROR TEST 3!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << westOne(bb)
+			<< "Expected: " << 0x0000000000000000 << std::endl;
 		success = false;
 	}
 
 	if (eastOne(bb) != 0x0000000000000200) {
-		std::cerr << "ERROR TEST 4!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << eastOne(bb)
+			<< "Expected: " << 0x0000000000000200 << std::endl;
 		success = false;
 	}
 
 	if (norEastOne(bb) != 0x0000000000020000) {
-		std::cerr << "ERROR TEST 5!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << norEastOne(bb)
+			<< "Expected: " << 0x0000000000020000 << std::endl;
 		success = false;
 	}
 
 	if (norWestOne(bb) != 0x0000000000000000) {
-		std::cerr << "ERROR TEST 6!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << norWestOne(bb)
+			<< "Expected: " << 0x0000000000000000 << std::endl;
 		success = false;
 	}
 
 	if (souEastOne(bb) != 0x0000000000000002) {
-		std::cerr << "ERROR TEST 7!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << souEastOne(bb)
+			<< "Expected: " << 0x0000000000000002 << std::endl;
 		success = false;
 	}
 
 	if (souWestOne(bb) != 0x0000000000000000) {
-		std::cerr << "ERROR TEST 8!" << std::endl;
+		std::cout << "testDirections: FAIL. Returned " << souWestOne(bb)
+			<< "Expected: " << 0x0000000000000000 << std::endl;
 		success = false;
 	}
 
-	if (success) std::cout << "SUCCESS!" << std::endl;
+	if (success) 
+		std::cout << "testDirections: PASS" << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testBitBoards()
@@ -184,6 +204,10 @@ void testBitBoards()
 	std::cout << "empty" << std::endl;
 	printBB(stdPosition.getEmptyBB());
 	std::cout << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testMakeMoves()
@@ -199,7 +223,7 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
 
 	system("Pause");
 
@@ -213,7 +237,7 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
 
 	system("Pause");
 
@@ -227,7 +251,7 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
 
 	system("Pause");
 
@@ -241,7 +265,7 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
 
 	system("Pause");
 
@@ -255,7 +279,7 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
 
 	system("Pause");
 
@@ -269,7 +293,11 @@ void testMakeMoves()
 	printBB(position.getOccupiedBB());
 
 	std::cout << std::endl << "En Passant Target" << std::endl;
-	printBB(position.getEN_PASSANTTarget());
+	printBB(position.getEnPassantTarget());
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testUnmakeMoves()
@@ -305,10 +333,15 @@ void testUnmakeMoves()
 		pos.unmakeMove();
 		printChessBoard(pos);
 	}
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testPromotions()
 {
+	std::cout << "Testing Promotion." << std::endl;
 	std::string cBoard;
 	cBoard += "________";
 	cBoard += "________";
@@ -323,6 +356,16 @@ void testPromotions()
 	pos.makeMove(Move(pos, a2, b1, PROMOTE_TO_QUEENCAPTURE));
 
 	printChessBoard(pos);
+	if (pos.getPieceOnSquare(b1) != B_QUEEN) {
+		std::cout << "testPromotions: FAIL." << std::endl;
+	}
+	else {
+		std::cout << "testPromotions: PASS." << std::endl;
+	}
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testBitManip()
@@ -343,9 +386,9 @@ void testBitManip()
 	printBB(pos.getPieceBB(W_PAWN));
 
 	if (success)
-		std::cout << "SUCCESS" << std::endl;
+		std::cout << "testBitManip: PASS." << std::endl;
 	else
-		std::cout << "FAILURE" << std::endl;
+		std::cout << "testBitManip: FAIL." << std::endl;
 }
 
 /*void testIcoMoveGenerator() {
@@ -360,9 +403,9 @@ void testBitManip()
 	//test white single pawn pushes on starting position
 	for (int i = 0; i < 16; i++) {
 		if (!moveList.contains(key[i])) {
-			std::cerr << "Move generator did not generate an expected move: ";
+			std::cout << "Move generator did not generate an expected move: ";
 			printMove(key[i]);
-			std::cerr << std::endl;
+			std::cout << std::endl;
 		}
 	}
 
@@ -374,7 +417,7 @@ void testBitManip()
 	//test black single pawn pushes on position after 1. e4
 	for (int i = 0; i < 16; i++) {
 		if (!moveList.contains(key2[i])) {
-			std::cerr << "Move generator did not generate an expected move: " << key2[i].toString() << std::endl;
+			std::cout << "Move generator did not generate an expected move: " << key2[i].toString() << std::endl;
 		}
 	}
 
@@ -383,20 +426,32 @@ void testBitManip()
 
 void testMoves()
 {
+	std::cout << "Testing move object creation. Move should be from d2 to e3 with a capture." 
+		<< std::endl;
+
 	Position position = Position();
 	Move move = Move(d2, e3, 0b0100);
+
 	std::cout << "MOVE = " << move.getMove() << std::endl;
 	printBits(move.getMove());
+
 	std::cout << "FROM SQUARE = " << move.getFromSquare() << std::endl;
 	printBits(move.getFromSquare());
+
 	std::cout << "TO SQUARE = " << move.getToSquare() << std::endl;
 	printBits(move.getToSquare());
+
 	std::cout << "FLAGS = " << move.getFlags() << std::endl;
 	printBits(move.getFlags());
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testCandidateMoveList()
 {
+	bool pass = true;
 	Move ply[6];
 	ply[0] = Move(e2, e4, 0);
 	ply[1] = Move(e7, e5, 0);
@@ -407,7 +462,8 @@ void testCandidateMoveList()
 
 	CandidateMoveList list = CandidateMoveList(ply[0]);
 	if (list.getSize() != 1) {
-		std::cerr << "error on construction with size.\n";
+		std::cout << "testCandidateMoveList: FAIL. Error on construction with size."
+			<< std::endl;
 		return;
 	}
 
@@ -418,33 +474,45 @@ void testCandidateMoveList()
 	list.add(ply[5]);
 
 	if (list.getSize() != 6) {
-		std::cerr << "error on addition with size.\n";
-		return;
+		std::cout << "testCandidateMoveList: FAIL. Error on addition with size." 
+			<< std::endl;
+		pass = false;
 	}
 	for (int i = 0; i < 6; i++) {
 		if (!list.getMove(i).isEqual(ply[i])) {
-			std::cerr << "error on addition of ply " << i << ".\n";
-			return;
+			std::cout << "testCandidateMoveList: FAIL. Error on addition of ply " 
+				<< i << "." << std::endl;
+			pass = false;
 		}
 	}
 
 	list.remove(4);
 	if (!list.getMove(4).isEqual(ply[5]) || list.getSize() != 5) {
-		std::cerr << "error on removal of ply 4.\n";
-		return;
+		std::cout << "testCandidateMoveList: FAIL. Error on removal of ply 4."
+			<< std::endl;
+		pass = false;
 	}
 
 	list.remove(2);
 	if (!(list.getMove(2).isEqual(ply[3]) && list.getMove(3).isEqual(ply[5])) || list.getSize() != 4) {
-		std::cerr << "error of removal of ply 2.\n";
-		return;
+		std::cout << "testCandidateMoveList: FAIL. Error of removal of ply 2."
+			<< std::endl;
+		pass = false;
 	}
 
-	std::cout << "SUCCESS.\n";
+	if (pass)
+		std::cout << "testCandidateMoveList: PASS." << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testPrintChess()
 {
+	std::cout << "Testing terminal printing of positions. Should print the opening moves to the Scotch Opening."
+		<< std::endl;
+
 	Position pos;
 	printChessBoard(pos);
 
@@ -471,10 +539,17 @@ void testPrintChess()
 	move = Move(pos, e5, d4, CAPTURE);
 	pos.makeMove(move);
 	printChessBoard(pos);
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
-void testEN_PASSANT()
+void testEnPassant()
 {
+	std::cout << "Testing en passant moves. There should be one seen in the following moves."
+		<< std::endl;
+
 	Position pos;
 	printChessBoard(pos);
 
@@ -494,68 +569,95 @@ void testEN_PASSANT()
 	pos.makeMove(move);
 	printChessBoard(pos);
 
-	//printBB(pos.getEN_PASSANTTarget());
+	//printBB(pos.getEnPassantTarget());
 
 	move = Move(pos, e5, d6, EN_PASSANT);
 	pos.makeMove(move);
 	printChessBoard(pos);
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testPopCount()
 {
+	std::cout << "Testing bitboard population count algorithm." << std::endl;
+
+	bool passed = true;
 	bb64 bitset = 0x0000000000000001ULL;
 	if (popCount64(bitset) != 1) {
-		std::cerr << "ERROR popCount returns wrong value." << std::endl;
+		std::cout << "testPopCount: FAIL. popCount returned: " << popCount64(bitset)
+			<< ". Expected: 1." << std::endl;
+		passed = false;
 	}
 
 	bitset = 0x0000000000000003ULL;
 	if (popCount64(bitset) != 2) {
-		std::cerr << "ERROR popCount returns wrong value." << std::endl;
+		std::cout << "testPopCount: FAIL. popCount returned: " << popCount64(bitset)
+			<< ". Expected: 2." << std::endl;
+		passed = false;
 	}
 
 	bitset = 0xFFFFFFFFFFFFFFFFULL;
 	if (popCount64(bitset) != 64) {
-		std::cerr << "ERROR popCount returned " << popCount64(bitset)
-			<< " instead of 64" << std::endl;
+		std::cout << "testPopCount: FAIL. popCount returned: " << popCount64(bitset)
+			<< ". Expected: 64." << std::endl;
+		passed = false;
 	}
 
 	bitset = 0x000F00000000F00F;
 	if (popCount64(bitset) != 12) {
-		std::cerr << "ERROR popCount returns wrong value." << std::endl;
+		std::cout << "testPopCount: FAIL. popCount returned: " << popCount64(bitset)
+			<< ". Expected: 12." << std::endl;
+		passed = false;
 	}
 
-	std::cout << "SUCCESS!" << std::endl;
+	if (passed)
+		std::cout << "testPopCount: PASS" << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testBitScan()
 {
-	bool success = true;
+	std::cout << "Testing bit scan forward/reverse intrinsics." << std::endl;
+	
+	bool passed = true;
 	bb64 bitboard = 0x0000000000000001;
 	if (bitScanForward(bitboard) != 0 || bitScanReverse(bitboard) != 0) {
-		std::cerr << "FAILURE TEST 1" << std::endl;
-		success = false;
+		std::cout << "testBitScan: FAIL Test 1." << std::endl;
+		passed = false;
 	}
 
 	bitboard = 0x8000000000000001;
 	if (bitScanForward(bitboard) != 0 || bitScanReverse(bitboard) != 63) {
-		std::cerr << "FAILURE TEST 2" << std::endl;
-		success = false;
+		std::cout << "testBitScan: FAIL Test 2." << std::endl;
+		passed = false;
 	}
 
 	bitboard = 0x000F000F00000000;
 	if (bitScanForward(bitboard) != 32 || bitScanReverse(bitboard) != 51) {
-		std::cerr << "FAILURE TEST 3" << std::endl;
-		success = false;
+		std::cout << "testBitScan: FAIL Test 3." << std::endl;
+		passed = false;
 	}
 
-	if (success)
-		std::cout << "SUCCESS!" << std::endl;
+	if (passed)
+		std::cout << "testBitScan: PASS." << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testPositionRecord()
 {
+	std::cout << "Testing previous position record keeping." << std::endl;
+
 	Position pos;
-	bool success = true;
+	bool passed = true;
 
 	Move move1 = Move(pos, e2, e4, DOUBLE_PAWN_PUSH);
 	pos.makeMove(move1);
@@ -578,61 +680,65 @@ void testPositionRecord()
 	std::vector<positionRecord> stack = pos.getPositionRecord();
 	positionRecord prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move6)
-		|| prev.getEN_PASSANTTarget() != 1ULL << d4
-		|| prev.getFiftyMoveRule() != 0) {
-		std::cerr << "Position Record FAILED test 1." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 1ULL << d4
+			|| prev.getFiftyMoveRule() != 0) {
+		std::cout << "testPositionRecord: FAIL Test 1." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
 	prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move5)
-		|| prev.getEN_PASSANTTarget() != 0ULL
-		|| prev.getFiftyMoveRule() != 2) {
-		std::cerr << "Position Record FAILED test 2." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 0ULL
+			|| prev.getFiftyMoveRule() != 2) {
+		std::cout << "testPositionRecord: FAIL Test 2." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
 	prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move4)
-		|| prev.getEN_PASSANTTarget() != 0ULL
-		|| prev.getFiftyMoveRule() != 1) {
-		std::cerr << "Position Record FAILED test 3." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 0ULL
+			|| prev.getFiftyMoveRule() != 1) {
+		std::cout << "testPositionRecord: FAIL Test 3." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
 	prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move3)
-		|| prev.getEN_PASSANTTarget() != 1ULL << e5
-		|| prev.getFiftyMoveRule() != 0) {
-		std::cerr << "Position Record FAILED test 4." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 1ULL << e5
+			|| prev.getFiftyMoveRule() != 0) {
+		std::cout << "testPositionRecord: FAIL Test 4." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
 	prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move2)
-		|| prev.getEN_PASSANTTarget() != 1ULL << e4
-		|| prev.getFiftyMoveRule() != 0) {
-		std::cerr << "Position Record FAILED test 5." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 1ULL << e4
+			|| prev.getFiftyMoveRule() != 0) {
+		std::cout << "testPositionRecord: FAIL Test 5." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
 	prev = stack.back();
 	if (!prev.getPrevMove().isEqual(move1)
-		|| prev.getEN_PASSANTTarget() != 0ULL
-		|| prev.getFiftyMoveRule() != 0) {
-		std::cerr << "Position Record FAILED test 6." << std::endl;
-		success = false;
+			|| prev.getEnPassantTarget() != 0ULL
+			|| prev.getFiftyMoveRule() != 0) {
+		std::cout << "testPositionRecord: FAIL Test 6." << std::endl;
+		passed = false;
 	}
 	stack.pop_back();
 
-	if (success && stack.empty()) {
-		std::cout << "SUCCESS!" << std::endl;
+	if (passed && stack.empty()) {
+		std::cout << "testPositionRecord: PASS." << std::endl;
 	}
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
 }
 
 void testSlidingAttacks()
@@ -1097,33 +1203,33 @@ int main()
 	cBoard += "RNBQKBNR";
 	*/
 
-	//IcoChess::testConstants();
-	//testPromotions();
-	//testMsb();
-	//testIndexOf();
-	//testBitBoards();
-	//testMakeMoves();
-	//testUnmakeMoves();
-	//testMoves();
-	//testIcoMoveGenerator();
-	//IcoChess::testCandidateMoveList();
-	//testBitManip();
-	//testPrintChess();
-	//testEN_PASSANT();
-	//testPopCount();
-	//testBitScan();
-	//testPositionRecord();
-	//testDirections();
-	//IcoChess::testSlidingAttacks();
-	//testEngine();
-	//IcoChess::testMoveGeneration();
-	//IcoChess::testLineAttacks();
-	//IcoChess::testDiagonalAttacks();
-	//IcoChess::testKnightMoves();
-	//IcoChess::testBishopMoves();
-	//IcoChess::testRookMoves();
-	//IcoChess::testQueenMoves();
-	//IcoChess::testKingMoves();
+	IcoChess::testConstants();
+	IcoChess::testPromotions();
+	IcoChess::testMsb();
+	IcoChess::testIndexOf();
+	IcoChess::testBitBoards();
+	IcoChess::testMakeMoves();
+	IcoChess::testUnmakeMoves();
+	IcoChess::testMoves();
+	//IcoChess::testIcoMoveGenerator();
+	IcoChess::testCandidateMoveList();
+	IcoChess::testBitManip();
+	IcoChess::testPrintChess();
+	IcoChess::testEnPassant();
+	IcoChess::testPopCount();
+	IcoChess::testBitScan();
+	IcoChess::testPositionRecord();
+	IcoChess::testDirections();
+	IcoChess::testSlidingAttacks();
+	IcoChess::testEngine();
+	IcoChess::testMoveGeneration();
+	IcoChess::testLineAttacks();
+	IcoChess::testDiagonalAttacks();
+	IcoChess::testKnightMoves();
+	IcoChess::testBishopMoves();
+	IcoChess::testRookMoves();
+	IcoChess::testQueenMoves();
+	IcoChess::testKingMoves();
 
 	system("Pause");
 }
