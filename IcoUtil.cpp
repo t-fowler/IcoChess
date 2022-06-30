@@ -327,4 +327,4 @@ void printMove(Move mov)
 		break;
 	}
 }
-}
+} // End namespace IcoChess.

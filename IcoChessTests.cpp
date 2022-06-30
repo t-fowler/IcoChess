@@ -137,6 +137,79 @@ void testDirections()
 	<< std::endl;
 }
 
+void testFen()
+{
+	Position fenPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+	Position correctPosition;
+
+	bool passed = true;
+
+	for (pieceType pt = W_PAWN; pt <= B_KING; pt = (pieceType)(pt + 1)) {
+		if (fenPosition.getPieceBB(pt) != correctPosition.getPieceBB(pt)) {
+			std::cout << "testFen: FAIL. PieceType " << pt 
+				<< ", returned: " << fenPosition.getPieceBB(pt) 
+				<< ". Expected: " << correctPosition.getPieceBB(pt) 
+				<< std::endl;
+			passed = false;
+		}
+	}
+
+	if (fenPosition.getEmptyBB() != correctPosition.getEmptyBB()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getEmptyBB()
+			<< ". Expected: " << correctPosition.getEmptyBB()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (fenPosition.getOccupiedBB() != correctPosition.getOccupiedBB()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getOccupiedBB()
+			<< ". Expected: " << correctPosition.getOccupiedBB()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (fenPosition.getEnPassantTarget() != correctPosition.getEnPassantTarget()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getEnPassantTarget()
+			<< ". Expected: " << correctPosition.getEnPassantTarget()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (fenPosition.getCastleFlag() != correctPosition.getCastleFlag()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getCastleFlag()
+			<< ". Expected: " << correctPosition.getCastleFlag()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (fenPosition.getFiftyMoveRule() != correctPosition.getFiftyMoveRule()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getFiftyMoveRule()
+			<< ". Expected: " << correctPosition.getFiftyMoveRule()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (fenPosition.getStm() != correctPosition.getStm()) {
+		std::cout << "testFen: FAIL"
+			<< ", returned: " << fenPosition.getStm()
+			<< ". Expected: " << correctPosition.getStm()
+			<< std::endl;
+		passed = false;
+	}
+
+	if (passed)
+		std::cout << "testFen: PASSED." << std::endl;
+
+	std::cout
+	<< "-------------------------------------------------------------------------------"
+	<< std::endl;
+}
+
 void testBitBoards()
 {
 	Position stdPosition = Position();
@@ -1207,6 +1280,7 @@ int main()
 	IcoChess::testPromotions();
 	IcoChess::testMsb();
 	IcoChess::testIndexOf();
+	IcoChess::testFen();
 	IcoChess::testBitBoards();
 	IcoChess::testMakeMoves();
 	IcoChess::testUnmakeMoves();

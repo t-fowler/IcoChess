@@ -12,6 +12,20 @@
 namespace IcoChess
 {
 
+void Position::setUnionBitboards()
+{
+	piecesBB[W_PIECE] = piecesBB[W_PAWN] | piecesBB[W_KNIGHT]
+		| piecesBB[W_BISHOP] | piecesBB[W_ROOK]
+		| piecesBB[W_QUEEN] | piecesBB[W_KING];
+
+	piecesBB[B_PIECE] = piecesBB[B_PAWN] | piecesBB[B_KNIGHT]
+		| piecesBB[B_BISHOP] | piecesBB[B_ROOK]
+		| piecesBB[B_QUEEN] | piecesBB[B_KING];
+
+	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
+	empty = ~occupied;
+}
+
 bb64 Position::getEmptyBB() { return empty; }
 
 bb64 Position::getOccupiedBB() { return occupied; }
@@ -121,21 +135,17 @@ Position::Position()
 	for (int pType = W_PAWN; pType <= B_KING; pType++) {
 		piecesBB[pType] = bitboards[pType].to_ullong();
 	}
-	piecesBB[W_PIECE] = piecesBB[W_PAWN] | piecesBB[W_KNIGHT]
-		| piecesBB[W_BISHOP] | piecesBB[W_ROOK]
-		| piecesBB[W_QUEEN] | piecesBB[W_KING];
-	piecesBB[B_PIECE] = piecesBB[B_PAWN] | piecesBB[B_KNIGHT]
-		| piecesBB[B_BISHOP] | piecesBB[B_ROOK]
-		| piecesBB[B_QUEEN] | piecesBB[B_KING];
-
-	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
-	empty = ~occupied;
+	
+	setUnionBitboards();
 }
 
 Position::Position(std::string cBoard, colour stm)
 {
-	positionRecordSt = std::vector<positionRecord>(); m_stm = stm;
-	fiftyMoveRule = 0; enPassantTarget = 0; castleFlag = 0;
+	positionRecordSt = std::vector<positionRecord>(); 
+	m_stm = stm;
+	fiftyMoveRule = 0; 
+	enPassantTarget = 0; 
+	castleFlag = 0;
 	if (cBoard[8 * 0 + 4] == 'k') { // king is on e8
 		if (cBoard[8 * 0 + 0] == 'r') // rook is on a8
 			castleFlag |= 0b0001;
@@ -206,26 +216,139 @@ Position::Position(std::string cBoard, colour stm)
 	for (int pType = W_PAWN; pType <= B_KING; pType++) {
 		piecesBB[pType] = bitboards[pType].to_ullong();
 	}
-	piecesBB[W_PIECE] = piecesBB[W_PAWN] | piecesBB[W_KNIGHT]
-		| piecesBB[W_BISHOP] | piecesBB[W_ROOK]
-		| piecesBB[W_QUEEN] | piecesBB[W_KING];
-
-	piecesBB[B_PIECE] = piecesBB[B_PAWN] | piecesBB[B_KNIGHT]
-		| piecesBB[B_BISHOP] | piecesBB[B_ROOK]
-		| piecesBB[B_QUEEN] | piecesBB[B_KING];
-
-	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
-	empty = ~occupied;
+	
+	setUnionBitboards();
 }
+
+Position::Position(std::string fen)
+{
+	positionRecordSt = std::vector<positionRecord>();
+
+	for (pieceType pt = W_PAWN; pt <= B_KING; pt = (pieceType)(pt + 1)) {
+		piecesBB[pt] = 0ULL;
+	}
+
+	size_t delim = std::string::npos;
+	for (int rank = 0; rank < 8; rank++) {
+		delim = fen.find("/");
+		if (delim == std::string::npos) {
+			delim = fen.find(" ");
+		}
+		int file = 0;
+		std::string rankString = fen.substr(0, delim);
+		fen.erase(0, delim + 1);
+
+		for (auto ch : rankString) {
+			switch (ch) {
+			case 'p':
+				piecesBB[B_PAWN] |= 1ULL << (8 * rank + file);
+				break;
+			case 'P':
+				piecesBB[W_PAWN] |= 1ULL << (8 * rank + file);
+				break;
+			case 'n':
+				piecesBB[B_KNIGHT] |= 1ULL << (8 * rank + file);
+				break;
+			case 'N':
+				piecesBB[W_KNIGHT] |= 1ULL << (8 * rank + file);
+				break;
+			case 'b':
+				piecesBB[B_BISHOP] |= 1ULL << (8 * rank + file);
+				break;
+			case 'B':
+				piecesBB[W_BISHOP] |= 1ULL << (8 * rank + file);
+				break;
+			case 'r':
+				piecesBB[B_ROOK] |= 1ULL << (8 * rank + file);
+				break;
+			case 'R':
+				piecesBB[W_ROOK] |= 1ULL << (8 * rank + file);
+				break;
+			case 'q':
+				piecesBB[B_QUEEN] |= 1ULL << (8 * rank + file);
+				break;
+			case 'Q':
+				piecesBB[W_QUEEN] |= 1ULL << (8 * rank + file);
+				break;
+			case 'k':
+				piecesBB[B_KING] |= 1ULL << (8 * rank + file);
+				break;
+			case 'K':
+				piecesBB[W_KING] |= 1ULL << (8 * rank + file);
+				break;
+			case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8':
+				file += ch - '0';
+				break;
+			}
+		}
+	}
+
+	setUnionBitboards();
+
+	if (fen[1] == 'w') {
+		m_stm = WHITE;
+	}
+	else if (fen[1] == 'b') {
+		m_stm = BLACK;
+	}
+	fen.erase(0, 2);
+
+	castleFlag = 0;
+	if (fen[1] != '-') {
+		int i = 0;
+		while (fen[++i] != ' ') {
+			switch (fen[i]) {
+			case 'K':
+				castleFlag |= 0b1000;
+				break;
+			case 'k':
+				castleFlag |= 0b0010;
+				break;
+			case 'Q':
+				castleFlag |= 0b0100;
+				break;
+			case 'q':
+				castleFlag |= 0b0001;
+				break;
+			}
+		}
+		fen.erase(0, i);
+	}
+	else {
+		fen.erase(0, 2);
+	}
+
+	if (fen[1] != '-') {
+		int rank = fen[1] - 'a';
+		int file = fen[2] - '1';
+		enPassantTarget = 1ULL << (8 * rank + file);
+		fen.erase(0, 3);
+	}
+	else {
+		fen.erase(0, 2);
+	}
+
+	if (fen[2] != ' ') {
+		fiftyMoveRule = std::stoi(fen.substr(1, 3));
+		fen.erase(0, 3);
+	}
+	else {
+		fiftyMoveRule = std::stoi(fen.substr(1, 2));
+		fen.erase(0, 2);
+	}
+
+	// TODO: Implement fullmove counter.
+	
+}
+
 
 void Position::makeMove(Move move)
 {
 	positionRecordSt.push_back(positionRecord(this, move));
 	bool incFifty = true;
 
-	/************************************************************
-	*		If there is a CAPTURE, remove CAPTUREd piece		*
-	************************************************************/
+	// Remove possible captured piece.
 	if (move.getFlags() == EN_PASSANT) {
 		piecesBB[move.getCaptPiece()] &= ~enPassantTarget;
 		incFifty = false;		// reset fifty move rule.
@@ -235,9 +358,7 @@ void Position::makeMove(Move move)
 		incFifty = false;		// reset fifty move rule.
 	}
 
-	/************************************************************
-	 *		Remove piece from origin / Add to target square		*
-	 ***********************************************************/
+	// Update bitboards.
 	bbResetBit(piecesBB[move.getMovPiece()], move.getFromSquare());
 	if (move.getFlags() & 0b1000) { // promote piece
 		switch (move.getFlags() & 0b1011) {
@@ -259,22 +380,10 @@ void Position::makeMove(Move move)
 		bbSetBit(piecesBB[move.getMovPiece()], move.getToSquare());
 	}
 
-	/************************************************************
-	*					Update union bitboards					*
-	************************************************************/
-	piecesBB[W_PIECE] = piecesBB[W_KING] | piecesBB[W_PAWN]
-		| piecesBB[W_KNIGHT] | piecesBB[W_BISHOP]
-		| piecesBB[W_ROOK] | piecesBB[W_QUEEN];
-	piecesBB[B_PIECE] = piecesBB[B_KING] | piecesBB[B_PAWN]
-		| piecesBB[B_KNIGHT] | piecesBB[B_BISHOP]
-		| piecesBB[B_ROOK] | piecesBB[B_QUEEN];
-	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
-	empty = ~occupied;
+	setUnionBitboards();
 
-	/************************************************************
-	* Special case for pawn moves:								*
-	*		reset fifty move rule and set en passant target		*
-	************************************************************/
+	// Special case for pawn moves:
+	// reset fifty move rule and set en passant target
 	enPassantTarget = 0;		// reset en passant target
 	if (move.getMovPiece() == W_PAWN || move.getMovPiece() == B_PAWN) {
 		incFifty = false;		// reset fifty move rule
@@ -293,41 +402,27 @@ void Position::unmakeMove()
 	positionRecord rec = positionRecordSt.back();
 	positionRecordSt.pop_back();
 
-	/************************************************************
-	*		If there was a CAPTURE, replace CAPTUREd piece		*
-	************************************************************/
+	// Replace possible captured piece.
 	pieceType captPiece = rec.getPrevMove().getCaptPiece();
 	if (captPiece != NO_PIECE) {
 		bbSetBit(piecesBB[captPiece], rec.getPrevMove().getToSquare());
 	}
 
-	/************************************************************
-	*		Remove piece from target / Add to origin square		*
-	************************************************************/
+	// Remove piece from target / Add to origin square
 	pieceType movPiece = rec.getPrevMove().getMovPiece();
 	bbResetBit(piecesBB[movPiece], rec.getPrevMove().getToSquare());
 	bbSetBit(piecesBB[movPiece], rec.getPrevMove().getFromSquare());
 
-	/************************************************************
-	*		Reset fifty move rule / en passant target / stm		*
-	************************************************************/
+	// Reset fifty move rule / en passant target / stm
 	fiftyMoveRule = rec.getFiftyMoveRule();
 	enPassantTarget = rec.getEnPassantTarget();
 	m_stm = other(m_stm);
 
-	/************************************************************
-	*					Update union bitboards					*
-	************************************************************/
-	piecesBB[W_PIECE + m_stm] = piecesBB[W_PAWN + m_stm]
-		| piecesBB[W_KNIGHT + m_stm] | piecesBB[W_BISHOP + m_stm]
-		| piecesBB[W_ROOK + m_stm] | piecesBB[W_QUEEN + m_stm]
-		| piecesBB[W_KING + m_stm];
-	occupied = piecesBB[W_PIECE] | piecesBB[B_PIECE];
-	empty = ~occupied;
+	
+	// Update union bitboards
+	setUnionBitboards();
 }
 
-/***************************************************************
-*/
 positionRecord::positionRecord(Position* pos, Move move)
 {
 	prevMove = move;

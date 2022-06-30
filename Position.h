@@ -4,10 +4,8 @@
 #include <vector>
 #include "Move.h"
 #include "IcoUtil.h"
-
 namespace IcoChess
 {
-
 /********************************************************************
 *		The positionRecord class is to keep track of certain        *
 *	position specific variables after moves are made. This			*
@@ -77,14 +75,14 @@ class Position
 private:
 	std::vector<positionRecord> positionRecordSt;
 	colour m_stm;				// Side to move: 0 = white, 1 = black
-	char castleFlag;		// white kingside/queenside then black
+	char castleFlag;			// white kingside/queenside then black
 	int fiftyMoveRule;
 	bb64 piecesBB[14];
 	bb64 occupied;
 	bb64 empty;
 	bb64 enPassantTarget;
-
-
+	
+	void setUnionBitboards();
 public:
 	/*********************** Constructors **********************/
 
@@ -111,6 +109,13 @@ public:
 	*	"RNBQKBNR"												*
 	************************************************************/
 	Position(std::string cBoard, colour stm);
+
+	/************************************************************
+	*		This constructor creates a chess position out of the*
+	* FEN given. FEN syntax can be found at the following link: *
+	* https://www.chessprogramming.org/Forsyth-Edwards_Notation	*
+	************************************************************/
+	Position(std::string fen);
 
 	// Copy Constructor
 	//Position(const Position& pos);
