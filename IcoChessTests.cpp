@@ -156,7 +156,7 @@ void testFen()
 
 	if (fenPosition.getEmptyBB() != correctPosition.getEmptyBB()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getEmptyBB()
+			<< ", EmptyBB returned: " << fenPosition.getEmptyBB()
 			<< ". Expected: " << correctPosition.getEmptyBB()
 			<< std::endl;
 		passed = false;
@@ -164,7 +164,7 @@ void testFen()
 
 	if (fenPosition.getOccupiedBB() != correctPosition.getOccupiedBB()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getOccupiedBB()
+			<< ", OccupiedBB returned: " << fenPosition.getOccupiedBB()
 			<< ". Expected: " << correctPosition.getOccupiedBB()
 			<< std::endl;
 		passed = false;
@@ -172,7 +172,7 @@ void testFen()
 
 	if (fenPosition.getEnPassantTarget() != correctPosition.getEnPassantTarget()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getEnPassantTarget()
+			<< ", EnPassantTarget returned: " << fenPosition.getEnPassantTarget()
 			<< ". Expected: " << correctPosition.getEnPassantTarget()
 			<< std::endl;
 		passed = false;
@@ -180,7 +180,7 @@ void testFen()
 
 	if (fenPosition.getCastleFlag() != correctPosition.getCastleFlag()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getCastleFlag()
+			<< ", CastleFlag returned: " << fenPosition.getCastleFlag()
 			<< ". Expected: " << correctPosition.getCastleFlag()
 			<< std::endl;
 		passed = false;
@@ -188,7 +188,7 @@ void testFen()
 
 	if (fenPosition.getFiftyMoveRule() != correctPosition.getFiftyMoveRule()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getFiftyMoveRule()
+			<< ", FiftyMoveRule returned: " << fenPosition.getFiftyMoveRule()
 			<< ". Expected: " << correctPosition.getFiftyMoveRule()
 			<< std::endl;
 		passed = false;
@@ -196,14 +196,14 @@ void testFen()
 
 	if (fenPosition.getStm() != correctPosition.getStm()) {
 		std::cout << "testFen: FAIL"
-			<< ", returned: " << fenPosition.getStm()
+			<< ", Stm returned: " << fenPosition.getStm()
 			<< ". Expected: " << correctPosition.getStm()
 			<< std::endl;
 		passed = false;
 	}
 
 	if (passed)
-		std::cout << "testFen: PASSED." << std::endl;
+		std::cout << "testFen: PASS." << std::endl;
 
 	std::cout
 	<< "-------------------------------------------------------------------------------"

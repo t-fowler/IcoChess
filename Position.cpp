@@ -229,7 +229,7 @@ Position::Position(std::string fen)
 	}
 
 	size_t delim = std::string::npos;
-	for (int rank = 0; rank < 8; rank++) {
+	for (int rank = 7; rank >= 0; rank--) {
 		delim = fen.find("/");
 		if (delim == std::string::npos) {
 			delim = fen.find(" ");
@@ -278,27 +278,28 @@ Position::Position(std::string fen)
 				break;
 			case '1': case '2': case '3': case '4':
 			case '5': case '6': case '7': case '8':
-				file += ch - '0';
+				file += ch - '1';
 				break;
 			}
+			file++;
 		}
 	}
 
 	setUnionBitboards();
 
-	if (fen[1] == 'w') {
+	if (fen[0] == 'w') {
 		m_stm = WHITE;
 	}
-	else if (fen[1] == 'b') {
+	else if (fen[0] == 'b') {
 		m_stm = BLACK;
 	}
 	fen.erase(0, 2);
 
 	castleFlag = 0;
-	if (fen[1] != '-') {
+	if (fen[0] != '-') {
 		int i = 0;
-		while (fen[++i] != ' ') {
-			switch (fen[i]) {
+		while (fen[i] != ' ') {
+			switch (fen[i++]) {
 			case 'K':
 				castleFlag |= 0b1000;
 				break;
@@ -313,15 +314,16 @@ Position::Position(std::string fen)
 				break;
 			}
 		}
-		fen.erase(0, i);
+		fen.erase(0, i+1);
+		
 	}
 	else {
 		fen.erase(0, 2);
 	}
 
-	if (fen[1] != '-') {
-		int rank = fen[1] - 'a';
-		int file = fen[2] - '1';
+	if (fen[0] != '-') {
+		int rank = fen[0] - 'a';
+		int file = fen[1] - '1';
 		enPassantTarget = 1ULL << (8 * rank + file);
 		fen.erase(0, 3);
 	}
@@ -329,12 +331,12 @@ Position::Position(std::string fen)
 		fen.erase(0, 2);
 	}
 
-	if (fen[2] != ' ') {
-		fiftyMoveRule = std::stoi(fen.substr(1, 3));
+	if (fen[1] != ' ') {
+		fiftyMoveRule = std::stoi(fen.substr(0, 2));
 		fen.erase(0, 3);
 	}
 	else {
-		fiftyMoveRule = std::stoi(fen.substr(1, 2));
+		fiftyMoveRule = std::stoi(fen.substr(0, 1));
 		fen.erase(0, 2);
 	}
 
