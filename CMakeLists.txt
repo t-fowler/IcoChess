@@ -16,12 +16,9 @@ enable_testing()
 
 add_executable(
 	IcoTest
-	./src/Game.hpp
-	./src/Game.cpp
 	./src/BoardRepresentation.hpp
 	./src/Position.hpp
 	./src/Position.cpp
-	./tests/functional_tests.cpp
 	./tests/position_tests.cpp
 )
 target_link_libraries(
