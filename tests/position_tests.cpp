@@ -8,7 +8,7 @@ namespace IcoChessTest {
 
 using namespace IcoChess;
 
-const bb64 STARTING_POSITION[14] =
+const bb64 STARTING_POSITION[NUM_PIECE_TYPES] =
 {
     RANK_2,
     B_FILE | G_FILE & RANK_1,
@@ -23,7 +23,8 @@ const bb64 STARTING_POSITION[14] =
     A_FILE | H_FILE & RANK_8,
     D_FILE & RANK_8,
     E_FILE & RANK_8,
-    RANK_7 | RANK_8
+    RANK_7 | RANK_8,
+    !(RANK_1 | RANK_2 | RANK_7 | RANK_8)
 };
 
 TEST(unit_tests_position, test_file_and_rank_constants_are_little_endian) {
@@ -57,7 +58,7 @@ TEST(unit_tests_position, standard_position_can_be_created) {
     ASSERT_EQ(pos.enPassantTarget(), 0);
     ASSERT_EQ(pos.ply(), 0);
 
-    for (int pt = W_PAWN; pt <= B_KING; pt++) {
+    for (int pt = W_PAWN; pt != NUM_PIECE_TYPES; pt++) {
         ASSERT_EQ(pos.pieceBitboard(static_cast<PieceType>(pt)), STARTING_POSITION[pt]);
     }
 }
