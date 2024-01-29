@@ -8,27 +8,40 @@ namespace IcoChessTest {
 
 using namespace IcoChess;
 
-const bb64 STARTING_POSITION[NUM_PIECE_TYPES] =
+struct StartingPosition
 {
-    RANK_2,
-    B_FILE | G_FILE & RANK_1,
-    C_FILE | F_FILE & RANK_1,
-    A_FILE | H_FILE & RANK_1,
-    D_FILE & RANK_1,
-    E_FILE & RANK_1,
-    RANK_1 | RANK_2,
-    RANK_7,
-    B_FILE | G_FILE & RANK_8,
-    C_FILE | F_FILE & RANK_8,
-    A_FILE | H_FILE & RANK_8,
-    D_FILE & RANK_8,
-    E_FILE & RANK_8,
-    RANK_7 | RANK_8,
-    !(RANK_1 | RANK_2 | RANK_7 | RANK_8)
-};
+    const bb64
+    W_PAWN = 0x00'00'00'00'00'00'FF'00,
+    W_KNIGHT = 0x00'00'00'00'00'00'00'42,
+    W_BISHOP = 0x00'00'00'00'00'00'00'24,
+    W_ROOK = 0x00'00'00'00'00'00'00'81,
+    W_QUEEN = 0x00'00'00'00'00'00'00'08,
+    W_KING = 0x00'00'00'00'00'00'00'10,
+    W_PIECE = 0x00'00'00'00'00'00'FF'FF,
+    B_PAWN = 0x00'FF'00'00'00'00'00'00,
+    B_KNIGHT = 0x42'00'00'00'00'00'00'00,
+    B_BISHOP = 0x24'00'00'00'00'00'00'00,
+    B_ROOK = 0x81'00'00'00'00'00'00'00,
+    B_QUEEN = 0x08'00'00'00'00'00'00'00,
+    B_KING = 0x10'00'00'00'00'00'00'00,
+    B_PIECE = 0xFF'FF'00'00'00'00'00'00,
+    NO_PIECE = 0x00'00'FF'FF'FF'FF'00'00;
+} startingPosition;
 
+bool positionMatchesFenString(std::string fen, const Position& pos) {
+    /*bb64 []
+    for (int rank = 7; i > 0; i--) {
+        // find the '/' demarcing the end of the row
+
+    }
+    */
+    return false;
+}
+
+/** This test confirms that the board constants are correctly set. They should be
+ordered in rank-file little endian mapping.*/
 TEST(unit_tests_position, test_file_and_rank_constants_are_little_endian) {
-    ASSERT_EQ(A_FILE, 0x0101010101010101);
+    ASSERT_EQ(A_FILE, 0x01'01'01'01'01'01'01'01);
     ASSERT_EQ(B_FILE, 0x0202020202020202);
     ASSERT_EQ(C_FILE, 0x0404040404040404);
     ASSERT_EQ(D_FILE, 0x0808080808080808);
@@ -47,7 +60,7 @@ TEST(unit_tests_position, test_file_and_rank_constants_are_little_endian) {
     ASSERT_EQ(RANK_8, 0xFF00000000000000);
 }
 
-TEST(unit_tests_position, standard_position_can_be_created) {
+TEST(unit_tests_position, test_standard_position_can_be_created) {
     Position pos;
 
     ASSERT_EQ(pos.sideToMove(), WHITE);
@@ -57,17 +70,32 @@ TEST(unit_tests_position, standard_position_can_be_created) {
     ASSERT_TRUE(pos.castleRights(BLACK, QUEENSIDE));
     ASSERT_EQ(pos.enPassantTarget(), 0);
     ASSERT_EQ(pos.ply(), 0);
-
-    for (int pt = W_PAWN; pt != NUM_PIECE_TYPES; pt++) {
-        ASSERT_EQ(pos.pieceBitboard(static_cast<PieceType>(pt)), STARTING_POSITION[pt]);
-    }
+    ASSERT_EQ(pos.pieceBitboard(W_PAWN), startingPosition.W_PAWN);
+    ASSERT_EQ(pos.pieceBitboard(W_KNIGHT), startingPosition.W_KNIGHT);
+    ASSERT_EQ(pos.pieceBitboard(W_BISHOP), startingPosition.W_BISHOP);
+    ASSERT_EQ(pos.pieceBitboard(W_ROOK), startingPosition.W_ROOK);
+    ASSERT_EQ(pos.pieceBitboard(W_QUEEN), startingPosition.W_QUEEN);
+    ASSERT_EQ(pos.pieceBitboard(W_KING), startingPosition.W_KING);
+    ASSERT_EQ(pos.pieceBitboard(W_PIECE), startingPosition.W_PIECE);
+    ASSERT_EQ(pos.pieceBitboard(B_PAWN), startingPosition.B_PAWN);
+    ASSERT_EQ(pos.pieceBitboard(B_KNIGHT), startingPosition.B_KNIGHT);
+    ASSERT_EQ(pos.pieceBitboard(B_BISHOP), startingPosition.B_BISHOP);
+    ASSERT_EQ(pos.pieceBitboard(B_ROOK), startingPosition.B_ROOK);
+    ASSERT_EQ(pos.pieceBitboard(B_QUEEN), startingPosition.B_QUEEN);
+    ASSERT_EQ(pos.pieceBitboard(B_KING), startingPosition.B_KING);
+    ASSERT_EQ(pos.pieceBitboard(B_PIECE), startingPosition.B_PIECE);
+    ASSERT_EQ(pos.pieceBitboard(NO_PIECE), startingPosition.NO_PIECE);
 }
 
-/*
+
 TEST(unit_tests_position, test_can_read_from_fen_string) {
-    std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    Position pos{startpos};
-    ASSERT_EQ
+    std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    Position startpos(fen);
+    ASSERT_TRUE(positionMatchesFenString(fen, startpos)) << "1: Starting position fen failed.";
+
+    fen = "8/5p1p/2R5/1P1K1kp1/6P1/8/P2p1P1P/8 b - g3 0 36" ;
+    Position kasparov_timman(fen);
+    ASSERT_TRUE(positionMatchesFenString(fen, kasparov_timman)) << "2: Kasparov - Timman fen failed.";
 }
-*/
+
 } // namespace IcoChessTest
