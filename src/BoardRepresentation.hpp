@@ -65,14 +65,6 @@ RANK_6 = 0x0000FF0000000000,
 RANK_7 = 0x00FF000000000000,
 RANK_8 = 0xFF00000000000000;
 
-/****************************************************************
-*		printChessBoard prints a position to the console		*
-*	such that it is readable as a chessboard.					*
-*																*
-*	@Position pos -- the position to be printed.				*
-****************************************************************/
-void printChessBoard(Position pos);
-
 } // IcoChess namespace
 
 #endif
