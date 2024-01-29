@@ -17,9 +17,9 @@ The components for a chess engine are well documented.
   * The available castling rights for each player
   * The possibility of an en passant capture
   * the halfmove clock
-1. **Move generator**: Determines all the legal (or pseudolegal) moves possible in the position.
-2. **Evaluation**: An function for determining the value of a position. Which side is winning?
-3. **Search**: Examines which moves to look at based on the evaluation of the position.
+2. **Move generator**: Determines all the legal (or pseudolegal) moves possible in the position.
+3. **Evaluation**: An function for determining the value of a position. Which side is winning?
+4. **Search**: Examines which moves to look at based on the evaluation of the position.
   Searches through the game tree for the best outcome for a particular side.
                                                                                               
 ### Board Representation
